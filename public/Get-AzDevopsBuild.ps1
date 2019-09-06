@@ -37,7 +37,7 @@ function Get-AzDevopsBuild {
             $urlPart = $response = $null
             if ($_) { $urlPart = "/$_" }
 
-            $urlString = [string]::Format("{0}{1}/_apis/build/builds/{2}?api-version=5.0", $areaUrl, $Project, $urlPart)
+            $urlString = [string]::Format("{0}{1}/_apis/build/builds/{2}?api-version=5.1", $areaUrl, $Project, $urlPart)
 
             $response = Invoke-RestMethod -Uri $urlString -Method Get -ContentType "application/json" -Headers $header
 
