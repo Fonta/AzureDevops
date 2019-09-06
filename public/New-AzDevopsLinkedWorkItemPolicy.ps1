@@ -1,4 +1,4 @@
-function Set-AzDevopsLinkedWorkItemPolicies {
+function New-AzDevopsLinkedWorkItemPolicy {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
     param (
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, HelpMessage = "Personal Access Token created in Azure Devops.")]
