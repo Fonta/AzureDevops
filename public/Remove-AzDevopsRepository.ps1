@@ -43,12 +43,16 @@ function Remove-AzDevopsRepository {
             $repo = Get-AzDevopsRepository -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project -RepositoryId $RepositoryId
 
             if ($repo) {
+                $policies = Get-AzDevopsPolicyConfiguration -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project -RepositoryId $repo.id
+                if ($policies) {
+                    $policies | Remove-AzDevopsPolicyConfiguration -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project
+                }
+
                 $urlString = [string]::Format("{0}{1}/_apis/git/repositories/{2}?api-version=5.1", $areaBaseUrl, $Project, $repo.id)
 
                 if ($PSCmdlet.ShouldProcess($repo.name)) {
                     $response = Invoke-RestMethod -Uri $urlString -Method Delete -ContentType "application/json" -Headers $header
                 }
-
                 $results.Add($response) | Out-Null
             }
         }

@@ -12,7 +12,11 @@ function Get-AzDevopsPolicyConfiguration {
         [Parameter(Mandatory = $true, HelpMessage = "Name or ID of the project in Azure Devops.")]
         [string] $Project,
 
-        [string[]] $Id
+        [Parameter(Mandatory = $false, HelpMessage = "ID of the policy in Azure Devops.")]
+        [string[]] $Id,
+
+        [Parameter(Mandatory = $false, HelpMessage = "Name or ID of a repository.")]
+        [string] $RepositoryId
     )
     
 
@@ -25,6 +29,10 @@ function Get-AzDevopsPolicyConfiguration {
 
     $results = New-Object -TypeName System.Collections.ArrayList
     $configsApiUrls = New-Object -TypeName System.Collections.ArrayList
+
+    if ($PSBoundParameters.ContainsKey('RepositoryId')) {
+        $repo = Get-AzDevopsRepository -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project -RepositoryId $RepositoryId
+    }
     
     if ($PSBoundParameters.ContainsKey('Id')) {
         $Id | Foreach-Object {
@@ -52,6 +60,9 @@ function Get-AzDevopsPolicyConfiguration {
     }
 
     if ($results) {
+        if ($PSBoundParameters.ContainsKey('RepositoryId')) {
+            $results = $results | where-object {$_.settings.scope.repositoryId -like $repo.id}
+        }
         return $results
     }
 }

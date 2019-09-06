@@ -1,6 +1,6 @@
 <#
     .SYNOPSIS
-        GetUpdate script to initiate the module
+        AzureDevops script to initiate the module
 #>
 
 # Get public and private function definition files
