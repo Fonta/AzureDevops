@@ -1,4 +1,4 @@
-function New-AzDevopsReviewerPolicy {
+function New-AzDevopsCommentResolutionPolicy {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
     param (
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, HelpMessage = "Personal Access Token created in Azure Devops.")]
@@ -22,19 +22,7 @@ function New-AzDevopsReviewerPolicy {
         [bool] $Enabled = $true,
 
         [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Boolean if policy is blocking or not.")]
-        [bool] $Blocking = $true,
-
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Integer.")]
-        [int] $minimumApproverCount = 2,
-
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Boolean.")]
-        [bool] $CreatorVoteCounts = $true,
-
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Boolean.")]
-        [bool] $allowDownvotes = $false,
-
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Boolean.")]
-        [bool] $resetOnSourcePush = $true,
+        [bool] $Blocking = $false,
 
         [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Method of matching.")]
         [string] $matchKind = "Exact"
@@ -69,26 +57,23 @@ function New-AzDevopsReviewerPolicy {
     process {
         $policy = @"
 {
-    "isBlocking": "$Blocking",
     "isEnabled": "$Enabled",
+    "isBlocking": "$Blocking",
     "type": {
-        "id": "fa4e907d-c16b-4a4c-9dfa-4906e5d171dd"
+        "id": "c6a1889d-b943-4856-b76f-9e46bb6b0df2"
     },
     "settings": {
-        "creatorVoteCounts": "$CreatorVoteCounts",
-        "resetOnSourcePush": "$resetOnSourcePush",
-        "allowDownvotes": "$allowDownvotes",
         "scope": [
             {
                 "repositoryId": "$RepositoryId",
                 "matchKind": "$matchKind",
                 "refName": "$Branch"
             }
-        ],
-        "minimumApproverCount": "$minimumApproverCount"
+        ]
     }
 }
 "@
+
         try {
             if ($PSCmdlet.ShouldProcess($RepositoryId)) {
                 $result = Invoke-RestMethod -Uri $url -Method Post -Headers $header -body $policy -ContentType "application/json"
@@ -97,7 +82,6 @@ function New-AzDevopsReviewerPolicy {
         catch {
             throw $_
         }
-        
     }
     
     end {

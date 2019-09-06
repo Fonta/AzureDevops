@@ -1,4 +1,4 @@
-function New-AzDevopsReviewerPolicy {
+function Set-AzDevopsCommentResolutionPolicy {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
     param (
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, HelpMessage = "Personal Access Token created in Azure Devops.")]
@@ -12,7 +12,10 @@ function New-AzDevopsReviewerPolicy {
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, HelpMessage = "Name or ID of the project in Azure Devops.")]
         [string] $Project,
 
-        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, HelpMessage = "Id of the repository to set the policies on.")]
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Id of policy to set the policies on.")]
+        [string] $Id,
+
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Id of the repository to set the policies on.")]
         [string] $RepositoryId,
 
         [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Branch/reg to set the polcies on E.G. 'refs/heads/master'")]
@@ -22,19 +25,7 @@ function New-AzDevopsReviewerPolicy {
         [bool] $Enabled = $true,
 
         [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Boolean if policy is blocking or not.")]
-        [bool] $Blocking = $true,
-
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Integer.")]
-        [int] $minimumApproverCount = 2,
-
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Boolean.")]
-        [bool] $CreatorVoteCounts = $true,
-
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Boolean.")]
-        [bool] $allowDownvotes = $false,
-
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Boolean.")]
-        [bool] $resetOnSourcePush = $true,
+        [bool] $Blocking = $false,
 
         [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Method of matching.")]
         [string] $matchKind = "Exact"
@@ -63,41 +54,48 @@ function New-AzDevopsReviewerPolicy {
         }
         $areaUrl = Get-AzDevopsAreaUrl @areaParams
 
-        $url = [string]::Format("{0}/{1}/_apis/policy/configurations?api-version=5.1", $areaUrl, $Project)
+        if (-not ($PSBoundParameters.ContainsKey('Id'))) {
+            $policyConfigParams = @{
+                PersonalAccessToken = $PersonalAccessToken
+                OrganizationName    = $OrganizationName
+                Project             = $Project
+                RepositoryId        = $RepositoryId
+            }
+            $policyConfig = Get-AzDevopsPolicyConfiguration @policyConfigParams  | Where-Object { $_.type.id -like "c6a1889d-b943-4856-b76f-9e46bb6b0df2" }
+            $Id = $policyConfig.id
+        }
+
+        $url = [string]::Format("{0}/{1}/_apis/policy/configurations/{2}?api-version=5.1", $areaUrl, $Project, $Id)
     }
     
     process {
         $policy = @"
 {
-    "isBlocking": "$Blocking",
     "isEnabled": "$Enabled",
+    "isBlocking": "$Blocking",
     "type": {
-        "id": "fa4e907d-c16b-4a4c-9dfa-4906e5d171dd"
+        "id": "c6a1889d-b943-4856-b76f-9e46bb6b0df2"
     },
     "settings": {
-        "creatorVoteCounts": "$CreatorVoteCounts",
-        "resetOnSourcePush": "$resetOnSourcePush",
-        "allowDownvotes": "$allowDownvotes",
         "scope": [
             {
                 "repositoryId": "$RepositoryId",
                 "matchKind": "$matchKind",
                 "refName": "$Branch"
             }
-        ],
-        "minimumApproverCount": "$minimumApproverCount"
+        ]
     }
 }
 "@
+
         try {
-            if ($PSCmdlet.ShouldProcess($RepositoryId)) {
-                $result = Invoke-RestMethod -Uri $url -Method Post -Headers $header -body $policy -ContentType "application/json"
+            if ($PSCmdlet.ShouldProcess($Id)) {
+                $result = Invoke-RestMethod -Uri $url -Method Put -Headers $header -body $policy -ContentType "application/json"
             }
         }
         catch {
             throw $_
         }
-        
     }
     
     end {

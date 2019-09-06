@@ -13,7 +13,7 @@ function New-AzDevopsLinkedWorkItemPolicy {
         [string] $Project,
 
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, HelpMessage = "Id of the repository to set the policies on.")]
-        [string] $Id,
+        [string] $RepositoryId,
 
         [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Branch/reg to set the polcies on E.G. 'refs/heads/master'")]
         [string] $Branch = "refs/heads/master",
@@ -65,7 +65,7 @@ function New-AzDevopsLinkedWorkItemPolicy {
     "settings": {
         "scope": [
             {
-                "repositoryId": "$Id",
+                "repositoryId": "$RepositoryId",
                 "matchKind": "$matchKind",
                 "refName": "$Branch"
             }
@@ -75,7 +75,7 @@ function New-AzDevopsLinkedWorkItemPolicy {
 "@
 
         try {
-            if ($PSCmdlet.ShouldProcess($Id)) {
+            if ($PSCmdlet.ShouldProcess($RepositoryId)) {
                 $result = Invoke-RestMethod -Uri $url -Method Post -Headers $header -body $policy -ContentType "application/json"
             }
         }
