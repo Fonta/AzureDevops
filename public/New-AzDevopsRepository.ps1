@@ -1,5 +1,5 @@
 function New-AzDevopsRepository {
-    [CmdletBinding(SupportsShouldProcess, ConfirmImpact='Medium')]
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
     param (
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, HelpMessage = "Name you want to give to the repository.")]
         [string] $Name,
@@ -34,13 +34,19 @@ function New-AzDevopsRepository {
 
         $prjObject = Get-AzDevopsProject -OrganizationName $OrganizationName -PersonalAccessToken $PersonalAccessToken | Where-Object { $_.name -like $Project -or $_.id -like $Project }
 
-        $gitBaseUrl = Get-AzDevopsAreaUrl -OrganizationName $OrganizationName -PersonalAccessToken $PersonalAccessToken -AreaId "4e080c62-fa21-4fbc-8fef-2a10a2b38049"
-        $gitApiUrl = [string]::Format("{0}/{1}/_apis/git/repositories?api-version=5.1", $gitBaseUrl, $Project)
+        $areaParams = @{
+            OrganizationName    = $OrganizationName
+            PersonalAccessToken = $PersonalAccessToken
+            AreaId              = "4e080c62-fa21-4fbc-8fef-2a10a2b38049"
+        }
+        $areaUrl = Get-AzDevopsAreaUrl @areaParams
+
+        $url = [string]::Format("{0}/{1}/_apis/git/repositories?api-version=5.1", $areaUrl, $Project)
     }
     
     process {
         $newRepoArgs = @{
-            name = $Name
+            name    = $Name
             project = @{
                 id = $prjObject.Id
             }
@@ -48,7 +54,7 @@ function New-AzDevopsRepository {
         
         try {
             if ($PSCmdlet.ShouldProcess($newRepoArgs.name)) {
-                $result = Invoke-RestMethod -Uri $gitApiUrl -Method Post -Headers $header -body ($newRepoArgs | ConvertTo-Json) -ContentType "application/json"
+                $result = Invoke-RestMethod -Uri $url -Method Post -Headers $header -body ($newRepoArgs | ConvertTo-Json) -ContentType "application/json"
             }
         }
         catch {

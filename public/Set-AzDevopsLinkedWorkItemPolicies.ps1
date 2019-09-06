@@ -1,5 +1,5 @@
 function Set-AzDevopsLinkedWorkItemPolicies {
-    [CmdletBinding(SupportsShouldProcess, ConfirmImpact='Medium')]
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
     param (
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, HelpMessage = "Personal Access Token created in Azure Devops.")]
         [Alias('PAT')]
@@ -44,8 +44,14 @@ function Set-AzDevopsLinkedWorkItemPolicies {
             authorization = "Basic $token"
         }
 
-        $configsBaseUrl = Get-AzDevopsAreaUrl -OrganizationName $OrganizationName -PersonalAccessToken $PersonalAccessToken -AreaId "fb13a388-40dd-4a04-b530-013a739c72ef"
-        $configsApiUrl = [string]::Format("{0}/{1}/_apis/policy/configurations?api-version=5.1", $configsBaseUrl, $Project)
+        $areaParams = @{
+            OrganizationName    = $OrganizationName
+            PersonalAccessToken = $PersonalAccessToken
+            AreaId              = "fb13a388-40dd-4a04-b530-013a739c72ef"
+        }
+        $areaUrl = Get-AzDevopsAreaUrl @areaParams
+
+        $url = [string]::Format("{0}/{1}/_apis/policy/configurations?api-version=5.1", $areaUrl, $Project)
     }
     
     process {
@@ -70,7 +76,7 @@ function Set-AzDevopsLinkedWorkItemPolicies {
 
         try {
             if ($PSCmdlet.ShouldProcess($Id)) {
-                $result = Invoke-RestMethod -Uri $configsApiUrl -Method Post -Headers $header -body $policy -ContentType "application/json"
+                $result = Invoke-RestMethod -Uri $url -Method Post -Headers $header -body $policy -ContentType "application/json"
             }
         }
         catch {

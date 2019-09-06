@@ -32,15 +32,20 @@ function Remove-AzDevopsRepository {
             authorization = "Basic $token"
         }
     
-        $areaBaseUrl = Get-AzDevopsAreaUrl -OrganizationName $OrganizationName -PersonalAccessToken $PersonalAccessToken -AreaId "4e080c62-fa21-4fbc-8fef-2a10a2b38049"
+        $areaParams = @{
+            OrganizationName    = $OrganizationName
+            PersonalAccessToken = $PersonalAccessToken
+            AreaId              = "4e080c62-fa21-4fbc-8fef-2a10a2b38049"
+        }
+        $areaUrl = Get-AzDevopsAreaUrl @areaParams
     
         $results = New-Object -TypeName System.Collections.ArrayList
     }
 
     process {
-        foreach ($RepositoryId in $Id) {
+        $Id | ForEach-Object {
             # according to the docs, it should be possibel to use the name of the repo in the url but somehow doesnt work
-            $repo = Get-AzDevopsRepository -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project -RepositoryId $RepositoryId
+            $repo = Get-AzDevopsRepository -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project -RepositoryId $_
 
             if ($repo) {
                 $policies = Get-AzDevopsPolicyConfiguration -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project -RepositoryId $repo.id
@@ -48,7 +53,7 @@ function Remove-AzDevopsRepository {
                     $policies | Remove-AzDevopsPolicyConfiguration -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project
                 }
 
-                $urlString = [string]::Format("{0}{1}/_apis/git/repositories/{2}?api-version=5.1", $areaBaseUrl, $Project, $repo.id)
+                $urlString = [string]::Format("{0}{1}/_apis/git/repositories/{2}?api-version=5.1", $areaUrl, $Project, $repo.id)
 
                 if ($PSCmdlet.ShouldProcess($repo.name)) {
                     $response = Invoke-RestMethod -Uri $urlString -Method Delete -ContentType "application/json" -Headers $header
@@ -59,7 +64,7 @@ function Remove-AzDevopsRepository {
     }
     
     end {
-        $results = $results | Where-Object {$_}
+        $results = $results | Where-Object { $_ }
         if ($results) {
             return $results 
         }

@@ -1,5 +1,5 @@
 function Remove-AzDevopsPolicyConfiguration {
-    [CmdletBinding(SupportsShouldProcess, ConfirmImpact='Medium')]
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
     param (
         [Parameter(Mandatory = $true, HelpMessage = "Personal Access Token created in Azure Devops.")]
         [Alias('PAT')]
@@ -13,7 +13,7 @@ function Remove-AzDevopsPolicyConfiguration {
         [string] $Project,
 
         [Parameter(Mandatory = $false, ValueFromPipeline, ValueFromPipelineByPropertyName, HelpMessage = "Id of the policy configuration to remove.")]
-        [int[]] $Id        
+        [int[]] $Id
     )
     
     begin {
@@ -39,8 +39,8 @@ function Remove-AzDevopsPolicyConfiguration {
     }
 
     process {
-        foreach ($configId in $Id) {
-            $urlString = [string]::Format("{0}/{1}/_apis/policy/configurations/{2}?api-version=5.1", $baseAreaUrl, $Project, $configId)
+        $Id | ForEach-Object {
+            $urlString = [string]::Format("{0}/{1}/_apis/policy/configurations/{2}?api-version=5.1", $baseAreaUrl, $Project, $_)
 
             try {
                 if ($PSCmdlet.ShouldProcess($value)) {
@@ -55,7 +55,6 @@ function Remove-AzDevopsPolicyConfiguration {
                 $results.Add($removeResult) | Out-Null
             }
         }
-
     }
 
     end {
