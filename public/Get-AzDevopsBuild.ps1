@@ -1,4 +1,4 @@
-function Get-AzDevopsProject {
+function Get-AzDevopsBuild {
     param(
         [Parameter(Mandatory = $true, HelpMessage = "Personal Access Token created in Azure Devops.")]
         [Alias('PAT')]
@@ -8,8 +8,11 @@ function Get-AzDevopsProject {
         [Alias('OrgName')]
         [string] $OrganizationName,
 
-        [Parameter(Mandatory = $false, HelpMessage = "Name or ID of the project in Azure Devops.")]
-        [string[]] $Project
+        [Parameter(Mandatory = $true, HelpMessage = "Name or ID of the project in Azure Devops.")]
+        [string] $Project,
+
+        [Parameter(Mandatory = $false, HelpMessage = "ID of the build.")]
+        [int[]] $BuildId
     )
 
     $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($PersonalAccessToken)"))
@@ -17,23 +20,23 @@ function Get-AzDevopsProject {
         authorization = "Basic $token"
     }
 
-    $projectsBaseUrl = Get-AzDevopsAreaUrl -OrganizationName $OrganizationName -PersonalAccessToken $PersonalAccessToken -AreaId "79134c72-4a58-4b42-976c-04e7115f32bf"
+    $projectsBaseUrl = Get-AzDevopsAreaUrl -OrganizationName $OrganizationName -PersonalAccessToken $PersonalAccessToken -AreaId "5d6898bb-45ec-463f-95f9-54d49c71752e"
 
     $results = New-Object -TypeName System.Collections.ArrayList
     $apiUrls = New-Object -TypeName System.Collections.ArrayList
 
-    if ($PSBoundParameters.ContainsKey('Project')) {
-        $Project | Foreach-Object {
-            $urlString = [string]::Format("{0}_apis/projects/{1}?api-version=5.1", $projectsBaseUrl, $_)
+    if ($PSBoundParameters.ContainsKey('BuildId')) {
+        $BuildId | Foreach-Object {
+            $urlString = [string]::Format("{0}{1}/_apis/build/builds/{2}?api-version=5.0", $projectsBaseUrl, $Project, $_)
             $apiUrls.Add($urlString) | Out-Null
         }
     }
     else {
-        $urlString = [string]::Format("{0}_apis/projects?api-version=5.1", $projectsBaseUrl)
+        $urlString = [string]::Format("{0}{1}/_apis/build/builds?api-version=5.0", $projectsBaseUrl, $Project)
         $apiUrls.Add($urlString) | Out-Null
     }
 
-    $apiUrls | Foreach-Object {
+    $apiUrls | ForEach-Object {
         $response = Invoke-RestMethod -Uri $_ -Method Get -ContentType "application/json" -Headers $header
 
         if ($response.value) {
@@ -45,7 +48,7 @@ function Get-AzDevopsProject {
             $results.Add($response) | Out-Null
         }
     }
-
+    
     if ($results) {
         return $results 
     }

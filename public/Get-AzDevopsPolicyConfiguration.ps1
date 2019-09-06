@@ -49,8 +49,8 @@ function Get-AzDevopsPolicyConfiguration {
         $configurations = Invoke-RestMethod -Uri $_ -Method Get -ContentType "application/json" -Headers $header
 
         if ($configurations.value) {
-            foreach ($config in $configurations.value) {
-                $results.Add($config) | Out-Null
+            $configurations.value | ForEach-Object {
+                $results.Add($_) | Out-Null
             }
         }
         elseif ($configurations.id) {

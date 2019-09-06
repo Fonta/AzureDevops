@@ -50,8 +50,8 @@ function Get-AzDevopsRepository {
         $response = Invoke-RestMethod -Uri $_ -Method Get -ContentType "application/json" -Headers $header
 
         if ($response.value) {
-            foreach ($item in $response.value) {
-                $results.Add($item) | Out-Null
+            $response.value | ForEach-Object {
+                $results.Add($_) | Out-Null
             }
         }
         elseif ($response.id) {
