@@ -112,16 +112,18 @@ function Get-AzDevopsRelease {
 
     process {
         $ReleaseId | ForEach-Object {
-            $urlPart = $response = $null
+            $idUrl = $queryUrl = $response = $null
+
             if ($_) {
-                $urlPart = "/$_"
+                $idUrl = "/$_"
             
-                $queryUrl = ""
+                # Allowed
                 if ($approvalFilters) { $queryUrl += [string]::Format("approvalFilters={0}&", $approvalFilters) }
                 if ($PropertyFilters) { $queryUrl += [string]::Format("PropertyFilters={0}&", $PropertyFilters -join ",") }
                 if ($Expand) { $queryUrl += [string]::Format('$expand={0}&', $Expand) }
                 if ($TopGateRecords) { $queryUrl += [string]::Format("topGateRecords={0}&", $TopGateRecords) }
 
+                # Not allowed
                 if ($ReleaseIdFilter) { Write-Warning -Message "Can't use ReleaseIdFilter in combination with ID. Ignoring." }
                 if ($TagFilter) { Write-Warning -Message "Can't use TagFilter in combination with ID. Ignoring." }
                 if ($IsDeleted.IsPresent) { Write-Warning -Message "Can't use IsDeleted in combination with ID. Ignoring." }
@@ -142,12 +144,9 @@ function Get-AzDevopsRelease {
                 if ($DefinitionEnvironmentId) { Write-Warning -Message "Can't use DefinitionEnvironmentId in combination with ID. Ignoring." }
                 if ($DefinitionId) { Write-Warning -Message "Can't use DefinitionId in combination with ID. Ignoring." }
                 if ($Path) { Write-Warning -Message "Can't use Path in combination with ID. Ignoring." }
-
-                $url = [string]::Format("{0}{1}/_apis/release/releases{2}?{3}api-version=5.1", $areaUrl, $Project, $urlPart, $queryUrl)
             }
             else {
-                $queryUrl = ""
-                
+                # Allowed                
                 if ($ReleaseIdFilter) { $queryUrl += [string]::Format("releaseIdFilter={0}&", $ReleaseIdFilter -join ",") }
                 if ($PropertyFilters) { $queryUrl += [string]::Format("PropertyFilters={0}&", $PropertyFilters -join ",") }
                 if ($TagFilter) { $queryUrl += [string]::Format('tagFilter={0}&', $TagFilter -join ",") }
@@ -170,12 +169,13 @@ function Get-AzDevopsRelease {
                 if ($DefinitionId) { $queryUrl += [string]::Format("topGateRecords={0}&", $TopGateRecords) }
                 if ($Path) { $queryUrl += [string]::Format("path={0}&", $Path) }
 
+                # Not allowed
                 if ($approvalFilters) { Write-Warning -Message "Can't use approvalFilters without an ID. Ignoring." }
                 if ($Expand) { Write-Warning -Message "Can't use Expand without an ID use ReleaseExpand instead! Ignoring." }
                 if ($TopGateRecords) { Write-Warning -Message "Can't use TopGateRecords without an ID. Ignoring." }
-
-                $url = [string]::Format("{0}{1}/_apis/release/releases?{3}api-version=5.1", $areaUrl, $Project, $queryUrl)
             }
+            
+            $url = [string]::Format("{0}{1}/_apis/release/releases{2}?{3}api-version=5.1", $areaUrl, $Project, $idUrl, $queryUrl)
             Write-Verbose "Contructed url $url"
 
             $response = Invoke-RestMethod -Uri $url -Method Get -ContentType "application/json" -Headers $header

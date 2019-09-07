@@ -61,7 +61,7 @@ function Set-AzDevopsCommentResolutionPolicy {
                 Project             = $Project
                 RepositoryId        = $RepositoryId
             }
-            $policyConfig = Get-AzDevopsPolicyConfiguration @policyConfigParams  | Where-Object { $_.type.id -like "c6a1889d-b943-4856-b76f-9e46bb6b0df2" }
+            $policyConfig = Get-AzDevopsPolicyConfiguration @policyConfigParams | Where-Object { $_.type.id -like "c6a1889d-b943-4856-b76f-9e46bb6b0df2" }
             $Id = $policyConfig.id
         }
 
@@ -89,13 +89,8 @@ function Set-AzDevopsCommentResolutionPolicy {
 }
 "@
 
-        try {
-            if ($PSCmdlet.ShouldProcess($Id)) {
-                $result = Invoke-RestMethod -Uri $url -Method Put -Headers $header -body $policy -ContentType "application/json"
-            }
-        }
-        catch {
-            throw $_
+        if ($PSCmdlet.ShouldProcess($Id)) {
+            $result = Invoke-RestMethod -Uri $url -Method Put -Headers $header -body $policy -ContentType "application/json"
         }
     }
     

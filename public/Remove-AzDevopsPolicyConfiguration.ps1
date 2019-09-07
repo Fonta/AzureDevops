@@ -43,16 +43,9 @@ function Remove-AzDevopsPolicyConfiguration {
             $url = [string]::Format("{0}{1}/_apis/policy/configurations/{2}?api-version=5.1", $baseAreaUrl, $Project, $_)
             Write-Verbose "Contructed url $url"
 
-            try {
-                if ($PSCmdlet.ShouldProcess($value)) {
-                    $removeResult = Invoke-RestMethod -Uri $url -Method Delete -ContentType "application/json" -Headers $header
-                }
-            }
-            catch {
-                Write-Host "Failed to remove policy configuration $value. Error: $($_.Exception.Message)"
-            }
-    
-            if ($removeResult) {
+            if ($PSCmdlet.ShouldProcess($value)) {
+                $removeResult = Invoke-RestMethod -Uri $url -Method Delete -ContentType "application/json" -Headers $header
+
                 $results.Add($removeResult) | Out-Null
             }
         }

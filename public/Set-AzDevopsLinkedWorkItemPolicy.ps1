@@ -89,13 +89,8 @@ function Set-AzDevopsLinkedWorkItemPolicy {
 }
 "@
 
-        try {
-            if ($PSCmdlet.ShouldProcess($Id)) {
-                $result = Invoke-RestMethod -Uri $url -Method Put -Headers $header -body $policy -ContentType "application/json"
-            }
-        }
-        catch {
-            throw $_
+        if ($PSCmdlet.ShouldProcess($Id)) {
+            $result = Invoke-RestMethod -Uri $url -Method Put -Headers $header -body $policy -ContentType "application/json"
         }
     }
     

@@ -75,13 +75,8 @@ function New-AzDevopsCommentResolutionPolicy {
 }
 "@
 
-        try {
-            if ($PSCmdlet.ShouldProcess($RepositoryId)) {
-                $result = Invoke-RestMethod -Uri $url -Method Post -Headers $header -body $policy -ContentType "application/json"
-            }
-        }
-        catch {
-            throw $_
+        if ($PSCmdlet.ShouldProcess($RepositoryId)) {
+            $result = Invoke-RestMethod -Uri $url -Method Post -Headers $header -Body $policy -ContentType "application/json"
         }
     }
     

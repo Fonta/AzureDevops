@@ -12,26 +12,26 @@ function Get-AzDevopsProject {
         [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "Name or ID of the project in Azure Devops.")]
         [string[]] $Project,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "Filter on team projects in a specific team project state (default: WellFormed).")]
+        [Parameter(Mandatory = $false, HelpMessage = "Filter on team projects in a specific team project state (default: WellFormed).")]
         [ValidateSet('all', 'createPending', 'deleted', 'deleting', 'new', 'unchanged', 'wellFormed')]
         [string] $StateFilter,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline)]
+        [Parameter(Mandatory = $false)]
         [int] $Top,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline)]
+        [Parameter(Mandatory = $false)]
         [int] $Skip,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline)]
+        [Parameter(Mandatory = $false)]
         [string] $ContinuationToken,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline)]
+        [Parameter(Mandatory = $false)]
         [switch] $GetDefaultTeamImageUrl,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline)]
+        [Parameter(Mandatory = $false)]
         [switch] $IncludeCapabilities,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline)]
+        [Parameter(Mandatory = $false)]
         [switch] $IncludeHistory
     )
 
@@ -53,32 +53,36 @@ function Get-AzDevopsProject {
 
     process {
         $Project | ForEach-Object {
-            $urlPart = $response = $null
-            if ($_) {
-                $urlPart = "/$_"
-                if ($IncludeCapabilities.IsPresent) { $includeCapabilitiesUrl = [string]::Format('includeCapabilities={0}&', $IncludeCapabilities) }
-                if ($IncludeHistory.IsPresent) { $includeHistoryUrl = [string]::Format('includeHistory={0}&', $IncludeHistory) }
+            $idUrl = $queryUrl = $response = $null
 
+            if ($_) {
+                $idUrl = "/$_"
+
+                # Allowed
+                if ($IncludeCapabilities.IsPresent) { $queryUrl += "includeCapabilities=true&" }
+                if ($IncludeHistory.IsPresent) { $queryUrl += "includeHistory=true&" }
+
+                # Not allowed
                 if ($StateFilter) { Write-Warning -Message "Can't use StateFilter in combination with ID. Ignoring." }
                 if ($Top) { Write-Warning -Message "Can't use Top in combination with ID. Ignoring." }
                 if ($Skip) { Write-Warning -Message "Can't use Skip in combination with ID. Ignoring." }
                 if ($ContinuationToken) { Write-Warning -Message "Can't use ContinuationToken in combination with ID. Ignoring." }
                 if ($GetDefaultTeamImageUrl.IsPresent) { Write-Warning -Message "Can't use GetDefaultTeamImageUrl in combination with ID. Ignoring." }
-
-                $url = [string]::Format("{0}_apis/projects/{1}?{2}{3}api-version=5.1", $areaUrl, $urlPart, $includeCapabilitiesUrl, $includeHistoryUrl)
             }
             else {
-                if ($StateFilter) { $stateFilterUrl = [string]::Format('stateFilter={0}&', $StateFilter) }
-                if ($Top) { $topUrl = [string]::Format('$top={0}&', $Top) }
-                if ($Skip) { $skipUrl = [string]::Format("$skip={0}&", $Skip) }
-                if ($ContinuationToken) { $continuationTokenUrl = [string]::Format("continuationToken={0}&", $ContinuationToken) }
-                if ($GetDefaultTeamImageUrl.IsPresent) { $getDefaultTeamImageUrlUrl = [string]::Format("getDefaultTeamImageUrl={0}&", $GetDefaultTeamImageUrl) }
+                # Allowed
+                if ($StateFilter) { $queryUrl += [string]::Format("stateFilter={0}&", $StateFilter) }
+                if ($Top) { $queryUrl += [string]::Format('$top={0}&', $Top) }
+                if ($Skip) { $queryUrl += [string]::Format('$skip={0}&', $Skip) }
+                if ($ContinuationToken) { $queryUrl += [string]::Format("continuationToken={0}&", $ContinuationToken) }
+                if ($GetDefaultTeamImageUrl.IsPresent) { $queryUrl += "getDefaultTeamImageUrl=true&" }
 
+                # Not allowed
                 if ($IncludeCapabilities.IsPresent) { Write-Warning -Message "Can't use IncludeCapabilities without an ID. Ignoring." }
                 if ($IncludeHistory.IsPresent) { Write-Warning -Message "Can't use IncludeCapabilities without an ID. Ignoring." }
-
-                $url = [string]::Format("{0}_apis/projects?{1}{2}{3}{4}{5}api-version=5.1", $areaUrl, $stateFilterUrl, $topUrl, $skipUrl, $continuationTokenUrl, $getDefaultTeamImageUrlUrl)
             }
+
+            $url = [string]::Format("{0}_apis/projects/{1}?{2}api-version=5.1", $areaUrl, $idUrl, $queryUrl)
             Write-Verbose "Contructed url $url"
 
             $response = Invoke-RestMethod -Uri $url -Method Get -ContentType "application/json" -Headers $header

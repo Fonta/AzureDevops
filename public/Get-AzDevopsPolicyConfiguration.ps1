@@ -47,22 +47,22 @@ function Get-AzDevopsPolicyConfiguration {
 
     process {
         $Id | ForEach-Object {
-            $urlPart = $response = $null
+            $idUrl = $queryUrl = $response = $null
+
             if ($_) {
-                $urlPart = "/$_"
-                if ($Scope) { 
-                    Write-Warning -Message "Can't use Scope in combination with ID. Ignoring Scope value"
-                }
-                if ($policyType) {
-                    Write-Warning -Message "Can't use PolicyType in combination with ID. Ignoring PolicyType value"
-                }
+                $idUrl = "/$_"
+
+                # Not allowed
+                if ($Scope) { Write-Warning -Message "Can't use Scope in combination with ID. Ignoring Scope value" }
+                if ($policyType) { Write-Warning -Message "Can't use PolicyType in combination with ID. Ignoring PolicyType value" }
             }
             else {
-                if ($Scope) { $ScopeUrl = [string]::Format("scope={0}&", $Scope) }
-                if ($policyType) { $policyTypeUrl = [string]::Format("startTime={0}&", $PolicyType) }
+                # Allowed
+                if ($Scope) { $queryUrl += [string]::Format("scope={0}&", $Scope) }
+                if ($policyType) { $queryUrl += [string]::Format("startTime={0}&", $PolicyType) }
             }
 
-            $url = [string]::Format("{0}{1}/_apis/policy/configurations{2}?{3}{4}api-version=5.1", $areaUrl, $Project, $urlPart, $scope, $policyType)
+            $url = [string]::Format("{0}{1}/_apis/policy/configurations{2}?{3}api-version=5.1", $areaUrl, $Project, $idUrl, $queryUrl)
             Write-Verbose "Contructed url $url"
 
             $response = Invoke-RestMethod -Uri $url -Method Get -ContentType "application/json" -Headers $header

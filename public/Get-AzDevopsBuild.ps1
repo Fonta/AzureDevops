@@ -15,72 +15,72 @@ function Get-AzDevopsBuild {
         [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "ID of the build.")]
         [int[]] $BuildId,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "Property Filters.")]
+        [Parameter(Mandatory = $false, HelpMessage = "Property Filters.")]
         [string] $PropertyFilters,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "If specified, filters to builds that built from this repository.")]
+        [Parameter(Mandatory = $false, HelpMessage = "If specified, filters to builds that built from this repository.")]
         [string] $RepositoryId,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "If specified, filters to builds that built from repositories of this type.")]
+        [Parameter(Mandatory = $false, HelpMessage = "If specified, filters to builds that built from repositories of this type.")]
         [string] $RepositoryType,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "A comma-delimited list that specifies the IDs of builds to retrieve.")]
+        [Parameter(Mandatory = $false, HelpMessage = "A comma-delimited list that specifies the IDs of builds to retrieve.")]
         [int[]] $BuildIds,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "If specified, filters to builds that built branches that built this branch.")]
+        [Parameter(Mandatory = $false, HelpMessage = "If specified, filters to builds that built branches that built this branch.")]
         [string] $BranchName,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "The order in which builds should be returned.")]
+        [Parameter(Mandatory = $false, HelpMessage = "The order in which builds should be returned.")]
         [ValidateSet("finishTimeAscending", "finishTimeDescending", "queueTimeAscending", "queueTimeDescending", "startTimeAscending", "startTimeDescending")]
         [string] $QueryOrder,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "Indicates whether to exclude, include, or only return deleted builds.")]
+        [Parameter(Mandatory = $false, HelpMessage = "Indicates whether to exclude, include, or only return deleted builds.")]
         [ValidateSet("excludeDeleted", "includeDeleted", "onlyDeleted")]
         [string] $DeletedFilter,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "The maximum number of builds to return per definition.")]
+        [Parameter(Mandatory = $false, HelpMessage = "The maximum number of builds to return per definition.")]
         [int] $MaxBuildsPerDefinition,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "A continuation token, returned by a previous call to this method, that can be used to return the next set of builds.")]
+        [Parameter(Mandatory = $false, HelpMessage = "A continuation token, returned by a previous call to this method, that can be used to return the next set of builds.")]
         [string] $ContinuationToken,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "The maximum number of builds to return.")]
+        [Parameter(Mandatory = $false, HelpMessage = "The maximum number of builds to return.")]
         [int] $Top,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "A comma-delimited list of properties to retrieve.")]
+        [Parameter(Mandatory = $false, HelpMessage = "A comma-delimited list of properties to retrieve.")]
         [string[]] $Properties,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "A comma-delimited list of tags. If specified, filters to builds that have the specified tags.")]
+        [Parameter(Mandatory = $false, HelpMessage = "A comma-delimited list of tags. If specified, filters to builds that have the specified tags.")]
         [string[]] $TagFilters,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "If specified, filters to builds that match this result.")]
+        [Parameter(Mandatory = $false, HelpMessage = "If specified, filters to builds that match this result.")]
         [ValidateSet("canceled", "failed", "none", "partiallySucceeded", "succeeded")]
         [string] $ResultFilter,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "If specified, filters to builds that match this status.")]
+        [Parameter(Mandatory = $false, HelpMessage = "If specified, filters to builds that match this status.")]
         [ValidateSet("all", "cancelling", "completed", "inProgress", "none", "notStarted", "postponed")]
         [string] $StatusFilter,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "If specified, filters to builds that match this reason.")]
+        [Parameter(Mandatory = $false, HelpMessage = "If specified, filters to builds that match this reason.")]
         [ValidateSet("all", "batchedCI", "buildCompletion", "checkInShelveset", "individualCI", "manual", "none", "pullRequest", "schedule", "scheduleForced", "triggered", "userCreated", "validateShelveset")]
         [string] $ReasonFilter,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "If specified, filters to builds requested for the specified user.")]
+        [Parameter(Mandatory = $false, HelpMessage = "If specified, filters to builds requested for the specified user.")]
         [string] $RequestedFor,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "If specified, filters to builds that finished/started/queued before this date based on the queryOrder specified.")]
+        [Parameter(Mandatory = $false, HelpMessage = "If specified, filters to builds that finished/started/queued before this date based on the queryOrder specified.")]
         [string] $MaxTime,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "If specified, filters to builds that finished/started/queued after this date based on the queryOrder specified.")]
+        [Parameter(Mandatory = $false, HelpMessage = "If specified, filters to builds that finished/started/queued after this date based on the queryOrder specified.")]
         [string] $MinTime,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "If specified, filters to builds that match this build number. Append * to do a prefix search.")]
+        [Parameter(Mandatory = $false, HelpMessage = "If specified, filters to builds that match this build number. Append * to do a prefix search.")]
         [string] $BuildNumber,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "A comma-delimited list of queue IDs. If specified, filters to builds that ran against these queues.")]
+        [Parameter(Mandatory = $false, HelpMessage = "A comma-delimited list of queue IDs. If specified, filters to builds that ran against these queues.")]
         [string[]] $Queues,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "A comma-delimited list of definition IDs. If specified, filters to builds for these definitions.")]
+        [Parameter(Mandatory = $false, HelpMessage = "A comma-delimited list of definition IDs. If specified, filters to builds for these definitions.")]
         [string[]] $Definitions
     )
 
@@ -102,11 +102,15 @@ function Get-AzDevopsBuild {
 
     process {
         $BuildId | ForEach-Object {
-            $urlPart = $response = $null
-            if ($_) { 
-                $urlPart = "/$_"
-                if ($PropertyFilters) { $propertyFiltersUrl = [string]::Format("PropertyFilters={0}&", $PropertyFilters) }
+            $idUrl = $queryUrl = $response = $null
 
+            if ($_) { 
+                $idUrl = "/$_"
+
+                # Allowed
+                if ($PropertyFilters) { $queryUrl += [string]::Format("PropertyFilters={0}&", $PropertyFilters) }
+
+                # Not allowed
                 if ($RepositoryId) { Write-Warning -Message "Can't use RepositoryId in combination with ID. Ignoring." }
                 if ($BuildIds) { Write-Warning -Message "Can't use BuildIds in combination with ID. Ignoring." }
                 if ($BranchName) { Write-Warning -Message "Can't use BranchName in combination with ID. Ignoring." }
@@ -127,11 +131,9 @@ function Get-AzDevopsBuild {
                 if ($Queues) { Write-Warning -Message "Can't use Queues in combination with ID. Ignoring." }
                 if ($Definitions) { Write-Warning -Message "Can't use Definitions in combination with ID. Ignoring." }
                 if ($RepositoryType) { Write-Warning -Message "Can't use RepositoryType in combination with ID. Ignoring." }
-
-                $url = [string]::Format("{0}{1}/_apis/build/builds{2}?{3}api-version=5.1", $areaUrl, $Project, $urlPart, $propertyFiltersUrl)
             }
             else {
-                $queryUrl = ""
+                # Allowed
                 if ($RepositoryId) { $queryUrl += [string]::Format("repositoryId={0}&", $RepositoryId) }
                 if ($RepositoryType) { $queryUrl += [string]::Format("repositoryType={0}&", $RepositoryType) }
                 if ($BuildIds) { $queryUrl += [string]::Format("buildIds={0}&", $BuildIds -join ",") }
@@ -153,14 +155,16 @@ function Get-AzDevopsBuild {
                 if ($Queues) { $queryUrl += [string]::Format("queues={0}&", $Queues -join ",") }
                 if ($Definitions) { $queryUrl += [string]::Format("definitions={0}&", $Definitions -join ",") }
 
+                # Not allowed
                 if ($PropertyFilters) { Write-Warning -Message "Can't use PropertyFilters without an ID. Ignoring." }
-
-                $url = [string]::Format("{0}{1}/_apis/build/builds?{3}api-version=5.1", $areaUrl, $Project, $urlPart, $queryUrl)
             }
+
+            # Contruct url
+            $url = [string]::Format("{0}{1}/_apis/build/builds{2}?{3}api-version=5.1", $areaUrl, $Project, $idUrl, $queryUrl)
             Write-Verbose "Contructed url $url"
 
             $response = Invoke-RestMethod -Uri $url -Method Get -ContentType "application/json" -Headers $header
-
+            
             if ($response.value) {
                 $response.value | ForEach-Object {
                     $results.Add($_) | Out-Null
@@ -178,4 +182,3 @@ function Get-AzDevopsBuild {
         }
     }
 }
-        

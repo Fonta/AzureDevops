@@ -39,13 +39,15 @@ function Get-AzDevopsAuditLog {
     }
 
     process {
-        if ($StartTime) { $startTimeUrl = [string]::Format("startTime={0}&", $StartTime) }
-        if ($EndTime) { $endTimeUrl = [string]::Format("endTime={0}&", $EndTime) }
-        if ($BatchSize) { $batchSizeUrl = [string]::Format("batchSize={0}&", $BatchSize) }
-        if ($ContinuationToken) { $continuationTokenUrl = [string]::Format("continuationToken={0}&", $ContinuationToken) }
-        if ($SkipAggregation.IsPresent) { $skipAggregationUrl = [string]"skipAggregation=true&" }
+        $queryUrl = $null
+        
+        if ($StartTime) { $queryUrl += [string]::Format("startTime={0}&", $StartTime) }
+        if ($EndTime) { $queryUrl += [string]::Format("endTime={0}&", $EndTime) }
+        if ($BatchSize) { $queryUrl += [string]::Format("batchSize={0}&", $BatchSize) }
+        if ($ContinuationToken) { $queryUrl += [string]::Format("continuationToken={0}&", $ContinuationToken) }
+        if ($SkipAggregation.IsPresent) { $queryUrl += [string]"skipAggregation=true&" }
 
-        $url = [string]::Format("{0}_apis/audit/auditlog?{1}{2}{3}{4}{5}api-version=5.1-preview.1", $areaUrl, $startTimeUrl, $endTimeUrl, $batchSizeUrl, $continuationTokenUrl, $skipAggregationUrl)
+        $url = [string]::Format("{0}_apis/audit/auditlog?{1}api-version=5.1-preview.1", $areaUrl, $queryUrl)
         Write-Verbose "Contructed url $url"
 
         $response = Invoke-RestMethod -Uri $url -Method Get -ContentType "application/json" -Headers $header

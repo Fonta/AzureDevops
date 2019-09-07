@@ -104,15 +104,9 @@ function Set-AzDevopsReviewerPolicy {
     }
 }
 "@
-        try {
-            if ($PSCmdlet.ShouldProcess($Id)) {
-                $result = Invoke-RestMethod -Uri $url -Method Put -Headers $header -body $policy -ContentType "application/json"
-            }
+        if ($PSCmdlet.ShouldProcess($Id)) {
+            $result = Invoke-RestMethod -Uri $url -Method Put -Headers $header -body $policy -ContentType "application/json"
         }
-        catch {
-            throw $_
-        }
-        
     }
     
     end {

@@ -53,13 +53,8 @@ function New-AzDevopsRepository {
             }
         }
         
-        try {
-            if ($PSCmdlet.ShouldProcess($newRepoArgs.name)) {
-                $result = Invoke-RestMethod -Uri $url -Method Post -Headers $header -body ($newRepoArgs | ConvertTo-Json) -ContentType "application/json"
-            }
-        }
-        catch {
-            throw $_
+        if ($PSCmdlet.ShouldProcess($newRepoArgs.name)) {
+            $result = Invoke-RestMethod -Uri $url -Method Post -Headers $header -body ($newRepoArgs | ConvertTo-Json) -ContentType "application/json"
         }
     }
     

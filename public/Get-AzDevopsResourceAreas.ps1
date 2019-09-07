@@ -23,7 +23,7 @@ function Get-AzDevopsResourceAreas {
         Write-Verbose "Contructed url $url"
 
         $response = Invoke-RestMethod -Uri $url -Method Get -ContentType "application/json" -Headers $header
-
+        
         if ($response.value) {
             $response.value | ForEach-Object {
                 $results.Add($_) | Out-Null

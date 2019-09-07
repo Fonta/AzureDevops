@@ -58,8 +58,9 @@ function Remove-AzDevopsRepository {
 
                 if ($PSCmdlet.ShouldProcess($repo.name)) {
                     $response = Invoke-RestMethod -Uri $url -Method Delete -ContentType "application/json" -Headers $header
+
+                    $results.Add($response) | Out-Null
                 }
-                $results.Add($response) | Out-Null
             }
         }
     }
