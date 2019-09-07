@@ -39,8 +39,6 @@ function Set-AzDevopsCommentResolutionPolicy {
             $WhatIfPreference = $PSCmdlet.SessionState.PSVariable.GetValue('WhatIfPreference')
         }
 
-        $method = 'Put'
-
         $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($PersonalAccessToken)"))
         $header = @{
             authorization = [string]::Format('Basic {0}', $token)
@@ -59,6 +57,7 @@ function Set-AzDevopsCommentResolutionPolicy {
     process {
         $Id | ForEach-Object {
             $policyUrl = $response = $null
+            $method = 'Put'
 
             $policyConfigParams = @{
                 PersonalAccessToken = $PersonalAccessToken

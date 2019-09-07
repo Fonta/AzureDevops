@@ -39,8 +39,6 @@ function Set-AzDevopsLinkedWorkItemPolicy {
             $WhatIfPreference = $PSCmdlet.SessionState.PSVariable.GetValue('WhatIfPreference')
         }
 
-        $method = 'Put'
-
         $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($PersonalAccessToken)"))
         $header = @{
             authorization = [string]::Format('Basic {0}', $token)
@@ -59,6 +57,7 @@ function Set-AzDevopsLinkedWorkItemPolicy {
     process {
         $Id | ForEach-Object {
             $policyUrl = $response = $null
+            $method = 'Put'
 
             $policyConfigParams = @{
                 PersonalAccessToken = $PersonalAccessToken
@@ -66,7 +65,7 @@ function Set-AzDevopsLinkedWorkItemPolicy {
                 Project             = $Project
                 RepositoryId        = $_
             }
-            $policyConfig = Get-AzDevopsPolicyConfiguration @policyConfigParams | Where-Object { $_.type.id -like 'c6a1889d-b943-4856-b76f-9e46bb6b0df2' }
+            $policyConfig = Get-AzDevopsPolicyConfiguration @policyConfigParams | Where-Object { $_.type.id -like '40e92b44-2fe1-4dd6-b3d8-74a9c21d0c6e' }
 
             if ($policyConfig) {
                 $policyUrl = [string]::Format('/{0}', $policyConfig.id)

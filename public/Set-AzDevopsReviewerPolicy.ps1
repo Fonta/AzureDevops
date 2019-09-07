@@ -51,8 +51,6 @@ function Set-AzDevopsReviewerPolicy {
             $WhatIfPreference = $PSCmdlet.SessionState.PSVariable.GetValue('WhatIfPreference')
         }
 
-        $method = 'Put'
-
         $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($PersonalAccessToken)"))
         $header = @{
             authorization = [string]::Format('Basic {0}', $token)
@@ -71,6 +69,7 @@ function Set-AzDevopsReviewerPolicy {
     process {
         $Id | ForEach-Object {
             $policyUrl = $response = $null
+            $method = 'Put'
 
             $policyConfigParams = @{
                 PersonalAccessToken = $PersonalAccessToken
@@ -78,7 +77,7 @@ function Set-AzDevopsReviewerPolicy {
                 Project             = $Project
                 RepositoryId        = $_
             }
-            $policyConfig = Get-AzDevopsPolicyConfiguration @policyConfigParams | Where-Object { $_.type.id -like 'c6a1889d-b943-4856-b76f-9e46bb6b0df2' }
+            $policyConfig = Get-AzDevopsPolicyConfiguration @policyConfigParams | Where-Object { $_.type.id -like 'fa4e907d-c16b-4a4c-9dfa-4906e5d171dd' }
 
             if ($policyConfig) {
                 $policyUrl = [string]::Format('/{0}', $policyConfig.id)
@@ -88,7 +87,7 @@ function Set-AzDevopsReviewerPolicy {
                 $method = 'Post'
             }
 
-            $policyString = $script:ConfigurationStrings.ReviewersPolicy
+            $policyString = $script:ConfigurationStrings.ReviewerPolicy
             $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
 
             $url = [string]::Format('{0}{1}/_apis/policy/configurations{2}?api-version=5.1', $areaUrl, $Project, $policyUrl)
