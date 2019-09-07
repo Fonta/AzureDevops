@@ -1,40 +1,40 @@
 function Get-AzDevopsPolicyConfiguration {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $true, HelpMessage = "Personal Access Token created in Azure Devops.")]
+        [Parameter(Mandatory = $true, HelpMessage = 'Personal Access Token created in Azure Devops.')]
         [Alias('PAT')]
         [string] $PersonalAccessToken,
 
-        [Parameter(Mandatory = $true, HelpMessage = "Name of the organization.")]
+        [Parameter(Mandatory = $true, HelpMessage = 'Name of the organization.')]
         [Alias('OrgName')]
         [string] $OrganizationName,
 
-        [Parameter(Mandatory = $true, HelpMessage = "Name or ID of the project in Azure Devops.")]
+        [Parameter(Mandatory = $true, HelpMessage = 'Name or ID of the project in Azure Devops.')]
         [string] $Project,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "ID of the policy in Azure Devops.")]
+        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = 'ID of the policy in Azure Devops.')]
         [string[]] $Id,
 
-        [Parameter(Mandatory = $false, HelpMessage = "Name or ID of a repository.")]
+        [Parameter(Mandatory = $false, HelpMessage = 'Name or ID of a repository.')]
         [string] $RepositoryId,
 
-        [Parameter(Mandatory = $false, HelpMessage = "[Provided for legacy reasons] The scope on which a subset of policies is defined.")]
+        [Parameter(Mandatory = $false, HelpMessage = '[Provided for legacy reasons] The scope on which a subset of policies is defined.')]
         [string] $Scope,
 
-        [Parameter(Mandatory = $false, HelpMessage = "Filter returned policies to only this type.")]
+        [Parameter(Mandatory = $false, HelpMessage = 'Filter returned policies to only this type.')]
         [string] $PolicyType
     )
 
     begin {
         $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($PersonalAccessToken)"))
         $header = @{
-            authorization = "Basic $token"
+            authorization = [string]::Format('Basic {0}', $token)
         }
     
         $areaParams = @{
             OrganizationName    = $OrganizationName
             PersonalAccessToken = $PersonalAccessToken
-            AreaId              = "fb13a388-40dd-4a04-b530-013a739c72ef"
+            AreaId              = 'fb13a388-40dd-4a04-b530-013a739c72ef'
         }
         $areaUrl = Get-AzDevopsAreaUrl @areaParams
     
@@ -50,22 +50,22 @@ function Get-AzDevopsPolicyConfiguration {
             $idUrl = $queryUrl = $response = $null
 
             if ($_) {
-                $idUrl = "/$_"
+                $idUrl = [string]::Format('/{0}', $_)
 
                 # Not allowed
-                if ($Scope) { Write-Warning -Message "Can't use Scope in combination with ID. Ignoring Scope value" }
-                if ($policyType) { Write-Warning -Message "Can't use PolicyType in combination with ID. Ignoring PolicyType value" }
+                if ($Scope) { Write-Warning -Message 'Unable to use Scope in combination with ID. Ignoring Scope value' }
+                if ($policyType) { Write-Warning -Message 'Unable to use PolicyType in combination with ID. Ignoring PolicyType value' }
             }
             else {
                 # Allowed
-                if ($Scope) { $queryUrl += [string]::Format("scope={0}&", $Scope) }
-                if ($policyType) { $queryUrl += [string]::Format("startTime={0}&", $PolicyType) }
+                if ($Scope) { $queryUrl += [string]::Format('scope={0}&', $Scope) }
+                if ($policyType) { $queryUrl += [string]::Format('startTime={0}&', $PolicyType) }
             }
 
-            $url = [string]::Format("{0}{1}/_apis/policy/configurations{2}?{3}api-version=5.1", $areaUrl, $Project, $idUrl, $queryUrl)
+            $url = [string]::Format('{0}{1}/_apis/policy/configurations{2}?{3}api-version=5.1', $areaUrl, $Project, $idUrl, $queryUrl)
             Write-Verbose "Contructed url $url"
 
-            $response = Invoke-RestMethod -Uri $url -Method Get -ContentType "application/json" -Headers $header
+            $response = Invoke-RestMethod -Uri $url -Method Get -ContentType 'application/json' -Headers $header
 
             if ($response.value) {
                 $response.value | ForEach-Object {

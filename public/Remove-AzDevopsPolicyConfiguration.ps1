@@ -1,18 +1,18 @@
 function Remove-AzDevopsPolicyConfiguration {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
     param (
-        [Parameter(Mandatory = $true, HelpMessage = "Personal Access Token created in Azure Devops.")]
+        [Parameter(Mandatory = $true, HelpMessage = 'Personal Access Token created in Azure Devops.')]
         [Alias('PAT')]
         [string] $PersonalAccessToken,
 
-        [Parameter(Mandatory = $true, HelpMessage = "Name of the organization.")]
+        [Parameter(Mandatory = $true, HelpMessage = 'Name of the organization.')]
         [Alias('OrgName')]
         [string] $OrganizationName,
 
-        [Parameter(Mandatory = $true, HelpMessage = "Name or ID of the project in Azure Devops.")]
+        [Parameter(Mandatory = $true, HelpMessage = 'Name or ID of the project in Azure Devops.')]
         [string] $Project,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, ValueFromPipelineByPropertyName, HelpMessage = "Id of the policy configuration to remove.")]
+        [Parameter(Mandatory = $false, ValueFromPipeline, ValueFromPipelineByPropertyName, HelpMessage = 'Id of the policy configuration to remove.')]
         [int[]] $Id
     )
     
@@ -30,21 +30,26 @@ function Remove-AzDevopsPolicyConfiguration {
 
         $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($PersonalAccessToken)"))
         $header = @{
-            authorization = "Basic $token"
+            authorization = [string]::Format('Basic {0}', $token)
         }
 
-        $baseAreaUrl = Get-AzDevopsAreaUrl -OrganizationName $OrganizationName -PersonalAccessToken $PersonalAccessToken -AreaId "fb13a388-40dd-4a04-b530-013a739c72ef"
+        $areaParams = @{
+            OrganizationName    = $OrganizationName
+            PersonalAccessToken = $PersonalAccessToken
+            AreaId              = 'fb13a388-40dd-4a04-b530-013a739c72ef'
+        }
+        $areaUrl = Get-AzDevopsAreaUrl @areaParams
 
         $results = New-Object -TypeName System.Collections.ArrayList
     }
 
     process {
         $Id | ForEach-Object {
-            $url = [string]::Format("{0}{1}/_apis/policy/configurations/{2}?api-version=5.1", $baseAreaUrl, $Project, $_)
+            $url = [string]::Format('{0}{1}/_apis/policy/configurations/{2}?api-version=5.1', $areaUrl, $Project, $_)
             Write-Verbose "Contructed url $url"
 
             if ($PSCmdlet.ShouldProcess($value)) {
-                $removeResult = Invoke-RestMethod -Uri $url -Method Delete -ContentType "application/json" -Headers $header
+                $removeResult = Invoke-RestMethod -Uri $url -Method Delete -ContentType 'application/json' -Headers $header
 
                 $results.Add($removeResult) | Out-Null
             }
