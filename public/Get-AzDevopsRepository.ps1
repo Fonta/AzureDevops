@@ -47,6 +47,7 @@ function Get-AzDevopsRepository {
             if ($_) { $urlPart = "/$_" }
 
             $url = [string]::Format("{0}{1}_apis/git/repositories/{2}?{3}api-version=5.1", $areaUrl, $prjUrl, $urlPart, $parentUrl)
+            Write-Verbose "Contructed url $url"
 
             $response = Invoke-RestMethod -Uri $url -Method Get -ContentType "application/json" -Headers $header
     

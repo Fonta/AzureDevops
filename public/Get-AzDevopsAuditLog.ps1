@@ -46,6 +46,7 @@ function Get-AzDevopsAuditLog {
         if ($SkipAggregation.IsPresent) { $skipAggregationUrl = [string]"skipAggregation=true&" }
 
         $url = [string]::Format("{0}_apis/audit/auditlog?{1}{2}{3}{4}{5}api-version=5.1-preview.1", $areaUrl, $startTimeUrl, $endTimeUrl, $batchSizeUrl, $continuationTokenUrl, $skipAggregationUrl)
+        Write-Verbose "Contructed url $url"
 
         $response = Invoke-RestMethod -Uri $url -Method Get -ContentType "application/json" -Headers $header
     }

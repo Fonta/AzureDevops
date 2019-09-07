@@ -53,10 +53,11 @@ function Remove-AzDevopsRepository {
                     $policies | Remove-AzDevopsPolicyConfiguration -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project
                 }
 
-                $urlString = [string]::Format("{0}{1}/_apis/git/repositories/{2}?api-version=5.1", $areaUrl, $Project, $repo.id)
+                $url = [string]::Format("{0}{1}/_apis/git/repositories/{2}?api-version=5.1", $areaUrl, $Project, $repo.id)
+                Write-Verbose "Contructed url $url"
 
                 if ($PSCmdlet.ShouldProcess($repo.name)) {
-                    $response = Invoke-RestMethod -Uri $urlString -Method Delete -ContentType "application/json" -Headers $header
+                    $response = Invoke-RestMethod -Uri $url -Method Delete -ContentType "application/json" -Headers $header
                 }
                 $results.Add($response) | Out-Null
             }

@@ -37,9 +37,10 @@ function Get-AzDevopsPolicyTypes {
             $urlPart = $response = $null
             if ($_) { $urlPart = "/$_" }
 
-            $urlString = [string]::Format("{0}{1}/_apis/policy/types{2}?api-version=5.1", $areaUrl, $Project, $urlPart)
+            $url = [string]::Format("{0}{1}/_apis/policy/types{2}?api-version=5.1", $areaUrl, $Project, $urlPart)
+            Write-Verbose "Contructed url $url"
 
-            $response = Invoke-RestMethod -Uri $urlString -Method Get -ContentType "application/json" -Headers $header
+            $response = Invoke-RestMethod -Uri $url -Method Get -ContentType "application/json" -Headers $header
 
             if ($response.value) {
                 $response.value | ForEach-Object {

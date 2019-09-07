@@ -42,6 +42,7 @@ function New-AzDevopsRepository {
         $areaUrl = Get-AzDevopsAreaUrl @areaParams
 
         $url = [string]::Format("{0}/{1}/_apis/git/repositories?api-version=5.1", $areaUrl, $Project)
+        Write-Verbose "Contructed url $url"
     }
     
     process {

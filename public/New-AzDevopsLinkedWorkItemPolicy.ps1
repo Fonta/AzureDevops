@@ -52,6 +52,7 @@ function New-AzDevopsLinkedWorkItemPolicy {
         $areaUrl = Get-AzDevopsAreaUrl @areaParams
 
         $url = [string]::Format("{0}/{1}/_apis/policy/configurations?api-version=5.1", $areaUrl, $Project)
+        Write-Verbose "Contructed url $url"
     }
     
     process {

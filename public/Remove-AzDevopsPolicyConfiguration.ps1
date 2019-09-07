@@ -40,11 +40,12 @@ function Remove-AzDevopsPolicyConfiguration {
 
     process {
         $Id | ForEach-Object {
-            $urlString = [string]::Format("{0}/{1}/_apis/policy/configurations/{2}?api-version=5.1", $baseAreaUrl, $Project, $_)
+            $url = [string]::Format("{0}/{1}/_apis/policy/configurations/{2}?api-version=5.1", $baseAreaUrl, $Project, $_)
+            Write-Verbose "Contructed url $url"
 
             try {
                 if ($PSCmdlet.ShouldProcess($value)) {
-                    $removeResult = Invoke-RestMethod -Uri $urlString -Method Delete -ContentType "application/json" -Headers $header
+                    $removeResult = Invoke-RestMethod -Uri $url -Method Delete -ContentType "application/json" -Headers $header
                 }
             }
             catch {

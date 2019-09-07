@@ -20,6 +20,7 @@ function Get-AzDevopsResourceAreas {
 
     process {
         $url = [string]::Format("https://dev.azure.com/{0}/_apis/resourceAreas", $OrganizationName)
+        Write-Verbose "Contructed url $url"
 
         $response = Invoke-RestMethod -Uri $url -Method Get -ContentType "application/json" -Headers $header
 

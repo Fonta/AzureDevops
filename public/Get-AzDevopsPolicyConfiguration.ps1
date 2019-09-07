@@ -16,7 +16,13 @@ function Get-AzDevopsPolicyConfiguration {
         [string[]] $Id,
 
         [Parameter(Mandatory = $false, HelpMessage = "Name or ID of a repository.")]
-        [string] $RepositoryId
+        [string] $RepositoryId,
+
+        [Parameter(Mandatory = $false, HelpMessage = "[Provided for legacy reasons] The scope on which a subset of policies is defined.")]
+        [string] $Scope,
+
+        [Parameter(Mandatory = $false, HelpMessage = "Filter returned policies to only this type.")]
+        [string] $PolicyType
     )
 
     begin {
@@ -42,11 +48,24 @@ function Get-AzDevopsPolicyConfiguration {
     process {
         $Id | ForEach-Object {
             $urlPart = $response = $null
-            if ($_) { $urlPart = "/$_" }
+            if ($_) {
+                $urlPart = "/$_"
+                if ($Scope) { 
+                    Write-Warning -Message "Can't use Scope in combination with ID. Ignoring Scope value"
+                }
+                if ($policyType) {
+                    Write-Warning -Message "Can't use PolicyType in combination with ID. Ignoring PolicyType value"
+                }
+            }
+            else {
+                if ($Scope) { $ScopeUrl = [string]::Format("scope={0}&", $Scope) }
+                if ($policyType) { $policyTypeUrl = [string]::Format("startTime={0}&", $PolicyType) }
+            }
 
-            $urlString = [string]::Format("{0}{1}/_apis/policy/configurations/{2}?api-version=5.1", $areaUrl, $Project, $urlPart)
+            $url = [string]::Format("{0}{1}/_apis/policy/configurations{2}?{3}{4}api-version=5.1", $areaUrl, $Project, $urlPart, $scope, $policyType)
+            Write-Verbose "Contructed url $url"
 
-            $response = Invoke-RestMethod -Uri $urlString -Method Get -ContentType "application/json" -Headers $header
+            $response = Invoke-RestMethod -Uri $url -Method Get -ContentType "application/json" -Headers $header
 
             if ($response.value) {
                 $response.value | ForEach-Object {
