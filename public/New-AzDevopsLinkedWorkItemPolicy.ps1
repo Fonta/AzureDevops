@@ -75,6 +75,8 @@ function New-AzDevopsLinkedWorkItemPolicy {
     }
     
     end {
-        return $results
+        if ($results) {
+            return $results
+        }
     }
 }

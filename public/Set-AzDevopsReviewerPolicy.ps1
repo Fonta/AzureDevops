@@ -25,20 +25,20 @@ function Set-AzDevopsReviewerPolicy {
         [bool] $Blocking = $true,
 
         [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Integer.')]
-        [ValidateRange(1,10)]
+        [ValidateRange(1, 10)]
         [int] $minimumApproverCount = 2,
 
         [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Boolean.')]
         [bool] $CreatorVoteCounts = $true,
 
         [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Boolean.')]
-        [bool] $allowDownvotes = $false,
+        [bool] $AllowDownvotes = $false,
 
         [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Boolean.')]
-        [bool] $resetOnSourcePush = $true,
+        [bool] $ResetOnSourcePush = $true,
 
         [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Method of matching.')]
-        [string] $matchKind = 'Exact'
+        [string] $MatchKind = 'Exact'
     )
     
     begin {
@@ -80,16 +80,32 @@ function Set-AzDevopsReviewerPolicy {
             }
             $policyConfig = Get-AzDevopsPolicyConfiguration @policyConfigParams | Where-Object { $_.type.id -like 'fa4e907d-c16b-4a4c-9dfa-4906e5d171dd' }
 
+            if (($policyConfig | Measure-Object).count -gt 1) {
+                Write-Error "Found multiple policies. Can't continue at this moment. If you know the ID of the policy, you can use the -PolicyId parameter."
+                return
+            }   
+
             if ($policyConfig) {
                 $policyUrl = [string]::Format('/{0}', $policyConfig.id)
+
+                if ($PSBoundParameters.ContainsKey('Enabled')) { $policyConfig.isEnabled = $Enabled }
+                if ($PSBoundParameters.ContainsKey('Blocking')) { $policyConfig.isBlocking = $Blocking }
+                if ($PSBoundParameters.ContainsKey('MinimumApproverCount')) { $policyConfig.settings.minimumApproverCount = $MinimumApproverCount }
+                if ($PSBoundParameters.ContainsKey('CreatorVoteCounts')) { $policyConfig.settings.creatorVoteCounts = $CreatorVoteCounts }
+                if ($PSBoundParameters.ContainsKey('AllowDownvotes')) { $policyConfig.settings.allowDownvotes = $AllowDownvotes }
+                if ($PSBoundParameters.ContainsKey('ResetOnSourcePush')) { $policyConfig.settings.resetOnSourcePush = $ResetOnSourcePush }
+                if ($PSBoundParameters.ContainsKey('Branch')) { $policyConfig.settings.scope.refName = $Branch }
+                if ($PSBoundParameters.ContainsKey('MatchKind')) { $policyConfig.settings.scope.matchKind = $MatchKind }
+
+                $policy = $policyConfig | ConvertTo-Json -Depth 5
             }
             else {
                 Write-Verbose 'Was unable to find existing policy to update, switching method to Post to create new one.'
                 $method = 'Post'
-            }
 
-            $policyString = $script:ConfigurationStrings.ReviewerPolicy
-            $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
+                $policyString = $script:ConfigurationStrings.ReviewerPolicy
+                $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
+            }
 
             $url = [string]::Format('{0}{1}/_apis/policy/configurations{2}?api-version=5.1', $areaUrl, $Project, $policyUrl)
             Write-Verbose "Contructed url $url"
@@ -103,7 +119,9 @@ function Set-AzDevopsReviewerPolicy {
     }
     
     end {
-        return $results
+        if ($results) {
+            return $results
+        }
     }
 }
 

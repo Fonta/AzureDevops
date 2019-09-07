@@ -1,4 +1,4 @@
-function New-AzDevopsCodeReviewerPolicy {
+function Set-AzDevopsCodeReviewerPolicy {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
     param (
         [Parameter(Mandatory = $true, HelpMessage = 'Personal Access Token created in Azure Devops.')]
@@ -14,6 +14,9 @@ function New-AzDevopsCodeReviewerPolicy {
 
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, HelpMessage = 'Id of the repository to set the policies on.')]
         [string[]] $Id,
+
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Id of the repository to set the policies on.')]
+        [string] $PolicyId,
 
         [Parameter(Mandatory = $false, HelpMessage = 'Boolean if policy enabled or not.')]
         [bool] $Enabled = $true,
@@ -31,6 +34,7 @@ function New-AzDevopsCodeReviewerPolicy {
         [bool] $AddedFilesOnly = $false,
 
         [Parameter(Mandatory = $false, HelpMessage = 'Minimum amount of approvers.')]
+        [ValidateRange(1, 10)]
         [int] $MinimumApproverCount = 1,
 
         [Parameter(Mandatory = $false, HelpMessage = 'Boolean if creators vote counts.')]
@@ -74,11 +78,11 @@ function New-AzDevopsCodeReviewerPolicy {
 
         $results = New-Object -TypeName System.Collections.ArrayList
 
-        if ($ReviewerIds) {
+        if ($PSBoundParameters.ContainsKey('ReviewerIds')) {
             $ReviewerIds = '"{0}"' -f ($ReviewerIds -join '","')
         }
 
-        if ($FilenamePatterns) {
+        if ($PSBoundParameters.ContainsKey('filenamePatterns')) {
             $FilenamePatterns = '"{0}"' -f ($FilenamePatterns -join '","')
         }
     }
@@ -94,18 +98,42 @@ function New-AzDevopsCodeReviewerPolicy {
                 Project             = $Project
                 RepositoryId        = $_
             }
+            if ($PSBoundParameters.ContainsKey('PolicyId')) {
+                $policyConfigParams.Id = $PolicyId
+            }
             $policyConfig = Get-AzDevopsPolicyConfiguration @policyConfigParams | Where-Object { $_.type.id -like 'fd2167ab-b0be-447a-8ec8-39368250530e' }
+
+            if (($policyConfig | Measure-Object).count -gt 1) {
+                Write-Error "Found multiple policies. Can't continue at this moment. If you know the ID of the policy, you can use the -PolicyId parameter."
+                return
+            }            
 
             if ($policyConfig) {
                 $policyUrl = [string]::Format('/{0}', $policyConfig.id)
+
+                if ($PSBoundParameters.ContainsKey('Enabled')) { $policyConfig.isEnabled = $Enabled }
+                if ($PSBoundParameters.ContainsKey('Blocking')) { $policyConfig.isBlocking = $Blocking }
+                if ($PSBoundParameters.ContainsKey('ReviewerIds')) { $policyConfig.settings.requiredReviewerIds = $ReviewerIds }
+                if ($PSBoundParameters.ContainsKey('filenamePatterns')) { $policyConfig.settings.filenamePatterns = $ReviewerIds }
+                if ($PSBoundParameters.ContainsKey('AddedFilesOnly')) { $policyConfig.settings.addedFilesOnly = $AddedFilesOnly }
+                if ($PSBoundParameters.ContainsKey('MinimumApproverCount')) { $policyConfig.settings.minimumApproverCount = $MinimumApproverCount }
+                if ($PSBoundParameters.ContainsKey('CreatorVoteCounts')) { $policyConfig.settings.creatorVoteCounts = $CreatorVoteCounts }
+                if ($PSBoundParameters.ContainsKey('MatchKind')) { $policyConfig.settings.scope.matchKind = $MatchKind }
+                if ($PSBoundParameters.ContainsKey('Branch')) { $policyConfig.settings.scope.refName = $Branch }
+                if ($PSBoundParameters.ContainsKey('ActivityFeedMessage')) { 
+                    if ($policyConfig.settings.message) { $policyConfig.settings.message = $ActivityFeedMessage }
+                    else { $policyConfig.settings | Add-Member -NotePropertyName message -NotePropertyValue $ActivityFeedMessage }
+                }
+
+                $policy = $policyConfig | ConvertTo-Json -Depth 5
             }
             else {
                 Write-Verbose 'Was unable to find existing policy to update, switching method to Post to create new one.'
                 $method = 'Post'
-            }
 
-            $policyString = $script:ConfigurationStrings.CodeReviewerPolicy
-            $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
+                $policyString = $script:ConfigurationStrings.CodeReviewerPolicy
+                $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
+            }
 
             $url = [string]::Format('{0}{1}/_apis/policy/configurations{2}?api-version=5.1', $areaUrl, $Project, $policyUrl)
             Write-Verbose "Contructed url $url"
@@ -119,6 +147,8 @@ function New-AzDevopsCodeReviewerPolicy {
     }
     
     end {
-        return $results
+        if ($results) {
+            return $results
+        }
     }
 }

@@ -67,16 +67,28 @@ function Set-AzDevopsLinkedWorkItemPolicy {
             }
             $policyConfig = Get-AzDevopsPolicyConfiguration @policyConfigParams | Where-Object { $_.type.id -like '40e92b44-2fe1-4dd6-b3d8-74a9c21d0c6e' }
 
+            if (($policyConfig | Measure-Object).count -gt 1) {
+                Write-Error "Found multiple policies. Can't continue at this moment. If you know the ID of the policy, you can use the -PolicyId parameter."
+                return
+            }   
+
             if ($policyConfig) {
                 $policyUrl = [string]::Format('/{0}', $policyConfig.id)
+
+                if ($PSBoundParameters.ContainsKey('Enabled')) { $policyConfig.isEnabled = $Enabled }
+                if ($PSBoundParameters.ContainsKey('Blocking')) { $policyConfig.isBlocking = $Blocking }
+                if ($PSBoundParameters.ContainsKey('Branch')) { $policyConfig.settings.scope.refName = $Branch }
+                if ($PSBoundParameters.ContainsKey('MatchKind')) { $policyConfig.settings.scope.matchKind = $MatchKind }
             }
             else {
                 Write-Verbose 'Was unable to find existing policy to update, switching method to Post to create new one.'
                 $method = 'Post'
+
+                $policyString = $script:ConfigurationStrings.LinkedWorkItemsPolicy
+                $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
             }
 
-            $policyString = $script:ConfigurationStrings.LinkedWorkItemsPolicy
-            $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
+            
 
             $url = [string]::Format('{0}{1}/_apis/policy/configurations{2}?api-version=5.1', $areaUrl, $Project, $policyUrl)
             Write-Verbose "Contructed url $url"
@@ -90,6 +102,8 @@ function Set-AzDevopsLinkedWorkItemPolicy {
     }
     
     end {
-        return $results
+        if ($results) {
+            return $results
+        }
     }
 }

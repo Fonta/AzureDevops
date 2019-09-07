@@ -81,7 +81,6 @@ function New-AzDevopsCodeReviewerPolicy {
         if ($FilenamePatterns) {
             $FilenamePatterns = '"{0}"' -f ($FilenamePatterns -join '","')
         }
-        
     }
     
     process {
@@ -102,6 +101,8 @@ function New-AzDevopsCodeReviewerPolicy {
     }
     
     end {
-        return $results
+        if ($results) {
+            return $results
+        }
     }
 }

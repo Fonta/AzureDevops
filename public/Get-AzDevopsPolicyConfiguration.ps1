@@ -83,6 +83,7 @@ function Get-AzDevopsPolicyConfiguration {
             if ($PSBoundParameters.ContainsKey('RepositoryId')) {
                 $results = $results | where-object { $_.settings.scope.repositoryId -like $repo.id }
             }
+            
             return $results
         }
     }

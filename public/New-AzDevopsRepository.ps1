@@ -59,6 +59,8 @@ function New-AzDevopsRepository {
     }
     
     end {
-        return $response
+        if ($response) {
+            return $response
+        }
     }
 }

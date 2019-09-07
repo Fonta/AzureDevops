@@ -75,6 +75,8 @@ function New-AzDevopsCommentResolutionPolicy {
     }
     
     end {
-        return $results
+        if ($results) {
+            return $results
+        }
     }
 }

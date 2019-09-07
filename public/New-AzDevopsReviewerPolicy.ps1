@@ -88,6 +88,8 @@ function New-AzDevopsReviewerPolicy {
     }
     
     end {
-        return $results
+        if ($results) {
+            return $results
+        }
     }
 }

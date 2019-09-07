@@ -6,15 +6,15 @@
     },
     "settings": {
         "creatorVoteCounts": "$CreatorVoteCounts",
-        "resetOnSourcePush": "$resetOnSourcePush",
-        "allowDownvotes": "$allowDownvotes",
+        "resetOnSourcePush": "$ResetOnSourcePush",
+        "allowDownvotes": "$AllowDownvotes",
         "scope": [
             {
                 "repositoryId": "$_",
-                "matchKind": "$matchKind",
+                "matchKind": "$MatchKind",
                 "refName": "$Branch"
             }
         ],
-        "minimumApproverCount": "$minimumApproverCount"
+        "minimumApproverCount": "$MinimumApproverCount"
     }
 }

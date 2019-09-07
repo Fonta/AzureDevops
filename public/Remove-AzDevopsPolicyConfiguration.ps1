@@ -57,6 +57,8 @@ function Remove-AzDevopsPolicyConfiguration {
     }
 
     end {
-        return $results
+        if ($results) {
+            return $results
+        }
     }
 }

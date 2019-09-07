@@ -67,6 +67,7 @@ function Remove-AzDevopsRepository {
     
     end {
         $results = $results | Where-Object { $_ }
+        
         if ($results) {
             return $results 
         }
