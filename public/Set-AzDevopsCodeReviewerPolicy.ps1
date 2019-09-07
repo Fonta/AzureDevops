@@ -1,44 +1,49 @@
-function Set-AzDevopsReviewerPolicy {
+function New-AzDevopsCodeReviewerPolicy {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
     param (
-        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, HelpMessage = 'Personal Access Token created in Azure Devops.')]
+        [Parameter(Mandatory = $true, HelpMessage = 'Personal Access Token created in Azure Devops.')]
         [Alias('PAT')]
         [string] $PersonalAccessToken,
 
-        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, HelpMessage = 'Name of the organization.')]
+        [Parameter(Mandatory = $true, HelpMessage = 'Name of the organization.')]
         [Alias('OrgName')]
         [string] $OrganizationName,
 
-        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, HelpMessage = 'Name or ID of the project in Azure Devops.')]
+        [Parameter(Mandatory = $true, HelpMessage = 'Name or ID of the project in Azure Devops.')]
         [string] $Project,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Id of the repository to set the policies on.')]
+        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, HelpMessage = 'Id of the repository to set the policies on.')]
         [string[]] $Id,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Branch/reg to set the polcies on E.G. "refs/heads/master"')]
-        [string] $Branch = 'refs/heads/master',
-
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Boolean if policy enabled or not.')]
+        [Parameter(Mandatory = $false, HelpMessage = 'Boolean if policy enabled or not.')]
         [bool] $Enabled = $true,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Boolean if policy is blocking or not.')]
+        [Parameter(Mandatory = $false, HelpMessage = 'Boolean if policy is blocking or not.')]
         [bool] $Blocking = $true,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Integer.')]
-        [ValidateRange(1,10)]
-        [int] $minimumApproverCount = 2,
+        [Parameter(Mandatory = $false, HelpMessage = 'Comma separated list of reviewer IDs')]
+        [string[]] $ReviewerIds,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Boolean.')]
+        [Parameter(Mandatory = $false, HelpMessage = 'Comma separated list of filename patterns')]
+        [string[]] $FilenamePatterns,  
+        
+        [Parameter(Mandatory = $false, HelpMessage = 'Boolean for added files only.')]
+        [bool] $AddedFilesOnly = $false,
+
+        [Parameter(Mandatory = $false, HelpMessage = 'Minimum amount of approvers.')]
+        [int] $MinimumApproverCount = 1,
+
+        [Parameter(Mandatory = $false, HelpMessage = 'Boolean if creators vote counts.')]
         [bool] $CreatorVoteCounts = $true,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Boolean.')]
-        [bool] $allowDownvotes = $false,
+        [Parameter(Mandatory = $false, HelpMessage = 'Message will appear in the activity feed of pull requests with automatically added reviewers')]
+        [string] $ActivityFeedMessage,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Boolean.')]
-        [bool] $resetOnSourcePush = $true,
+        [Parameter(Mandatory = $false, HelpMessage = 'Method of matching.')]
+        [string] $matchKind = 'Exact',
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Method of matching.')]
-        [string] $matchKind = 'Exact'
+        [Parameter(Mandatory = $false, HelpMessage = 'Branch/reg to set the polcies on E.G. "refs/heads/master"')]
+        [string] $Branch = 'refs/heads/master'
     )
     
     begin {
@@ -64,7 +69,18 @@ function Set-AzDevopsReviewerPolicy {
         }
         $areaUrl = Get-AzDevopsAreaUrl @areaParams
 
+        $url = [string]::Format('{0}{1}/_apis/policy/configurations?api-version=5.1', $areaUrl, $Project)
+        Write-Verbose "Contructed url $url"
+
         $results = New-Object -TypeName System.Collections.ArrayList
+
+        if ($ReviewerIds) {
+            $ReviewerIds = '"{0}"' -f ($ReviewerIds -join '","')
+        }
+
+        if ($FilenamePatterns) {
+            $FilenamePatterns = '"{0}"' -f ($FilenamePatterns -join '","')
+        }
     }
     
     process {
@@ -78,7 +94,7 @@ function Set-AzDevopsReviewerPolicy {
                 Project             = $Project
                 RepositoryId        = $_
             }
-            $policyConfig = Get-AzDevopsPolicyConfiguration @policyConfigParams | Where-Object { $_.type.id -like 'fa4e907d-c16b-4a4c-9dfa-4906e5d171dd' }
+            $policyConfig = Get-AzDevopsPolicyConfiguration @policyConfigParams | Where-Object { $_.type.id -like 'fd2167ab-b0be-447a-8ec8-39368250530e' }
 
             if ($policyConfig) {
                 $policyUrl = [string]::Format('/{0}', $policyConfig.id)
@@ -88,7 +104,7 @@ function Set-AzDevopsReviewerPolicy {
                 $method = 'Post'
             }
 
-            $policyString = $script:ConfigurationStrings.ReviewerPolicy
+            $policyString = $script:ConfigurationStrings.CodeReviewerPolicy
             $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
 
             $url = [string]::Format('{0}{1}/_apis/policy/configurations{2}?api-version=5.1', $areaUrl, $Project, $policyUrl)
@@ -106,5 +122,3 @@ function Set-AzDevopsReviewerPolicy {
         return $results
     }
 }
-
-

@@ -1,4 +1,4 @@
-function New-AzDevopsReviewerPolicy {
+function New-AzDevopsCodeReviewerPolicy {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
     param (
         [Parameter(Mandatory = $true, HelpMessage = 'Personal Access Token created in Azure Devops.')]
@@ -15,30 +15,35 @@ function New-AzDevopsReviewerPolicy {
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, HelpMessage = 'Id of the repository to set the policies on.')]
         [string[]] $Id,
 
-        [Parameter(Mandatory = $false, HelpMessage = 'Branch/reg to set the polcies on E.G. "refs/heads/master"')]
-        [string] $Branch = 'refs/heads/master',
-
         [Parameter(Mandatory = $false, HelpMessage = 'Boolean if policy enabled or not.')]
         [bool] $Enabled = $true,
 
         [Parameter(Mandatory = $false, HelpMessage = 'Boolean if policy is blocking or not.')]
         [bool] $Blocking = $true,
 
-        [Parameter(Mandatory = $false, HelpMessage = 'Integer.')]
-        [ValidateRange(1,10)]
-        [int] $minimumApproverCount = 2,
+        [Parameter(Mandatory = $false, HelpMessage = 'Comma separated list of reviewer IDs')]
+        [string[]] $ReviewerIds,
 
-        [Parameter(Mandatory = $false, HelpMessage = 'Boolean.')]
+        [Parameter(Mandatory = $false, HelpMessage = 'Comma separated list of filename patterns')]
+        [string[]] $FilenamePatterns,  
+        
+        [Parameter(Mandatory = $false, HelpMessage = 'Boolean for added files only.')]
+        [bool] $AddedFilesOnly = $false,
+
+        [Parameter(Mandatory = $false, HelpMessage = 'Minimum amount of approvers.')]
+        [int] $MinimumApproverCount = 1,
+
+        [Parameter(Mandatory = $false, HelpMessage = 'Boolean if creators vote counts.')]
         [bool] $CreatorVoteCounts = $true,
 
-        [Parameter(Mandatory = $false, HelpMessage = 'Boolean.')]
-        [bool] $allowDownvotes = $false,
-
-        [Parameter(Mandatory = $false, HelpMessage = 'Boolean.')]
-        [bool] $resetOnSourcePush = $true,
+        [Parameter(Mandatory = $false, HelpMessage = 'Message will appear in the activity feed of pull requests with automatically added reviewers')]
+        [string] $ActivityFeedMessage,
 
         [Parameter(Mandatory = $false, HelpMessage = 'Method of matching.')]
-        [string] $matchKind = 'Exact'
+        [string] $matchKind = 'Exact',
+
+        [Parameter(Mandatory = $false, HelpMessage = 'Branch/reg to set the polcies on E.G. "refs/heads/master"')]
+        [string] $Branch = 'refs/heads/master'
     )
     
     begin {
@@ -68,13 +73,22 @@ function New-AzDevopsReviewerPolicy {
         Write-Verbose "Contructed url $url"
 
         $results = New-Object -TypeName System.Collections.ArrayList
+
+        if ($ReviewerIds) {
+            $ReviewerIds = '"{0}"' -f ($ReviewerIds -join '","')
+        }
+
+        if ($FilenamePatterns) {
+            $FilenamePatterns = '"{0}"' -f ($FilenamePatterns -join '","')
+        }
+        
     }
     
     process {
         $Id | ForEach-Object {
             $response = $null
             
-            $policyString = $script:ConfigurationStrings.ReviewersPolicy
+            $policyString = $script:ConfigurationStrings.CodeReviewerPolicy
             $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
 
             if ($PSCmdlet.ShouldProcess($RepositoryId)) {
