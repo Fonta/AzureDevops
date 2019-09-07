@@ -40,7 +40,7 @@ function Remove-AzDevopsPolicyConfiguration {
 
     process {
         $Id | ForEach-Object {
-            $url = [string]::Format("{0}/{1}/_apis/policy/configurations/{2}?api-version=5.1", $baseAreaUrl, $Project, $_)
+            $url = [string]::Format("{0}{1}/_apis/policy/configurations/{2}?api-version=5.1", $baseAreaUrl, $Project, $_)
             Write-Verbose "Contructed url $url"
 
             try {

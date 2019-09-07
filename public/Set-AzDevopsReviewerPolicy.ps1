@@ -77,7 +77,7 @@ function Set-AzDevopsReviewerPolicy {
             $Id = $policyConfig.id
         }
 
-        $url = [string]::Format("{0}/{1}/_apis/policy/configurations/{2}?api-version=5.1", $areaUrl, $Project, $Id)
+        $url = [string]::Format("{0}{1}/_apis/policy/configurations/{2}?api-version=5.1", $areaUrl, $Project, $Id)
         Write-Verbose "Contructed url $url"
     }
     
