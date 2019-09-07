@@ -84,7 +84,7 @@ function Set-AzDevopsLinkedWorkItemPolicy {
                 Write-Verbose 'Was unable to find existing policy to update, switching method to Post to create new one.'
                 $method = 'Post'
 
-                $policyString = $script:ConfigurationStrings.LinkedWorkItemsPolicy
+                $policyString = $script:ConfigurationStrings.LinkedWorkItemPolicy
                 $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
             }
 

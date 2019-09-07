@@ -51,7 +51,9 @@ function Remove-AzDevopsPolicyConfiguration {
             if ($PSCmdlet.ShouldProcess($value)) {
                 $removeResult = Invoke-RestMethod -Uri $url -Method Delete -ContentType 'application/json' -Headers $header
 
-                $results.Add($removeResult) | Out-Null
+                if ($removeResult) {
+                    $results.Add($removeResult) | Out-Null
+                }
             }
         }
     }

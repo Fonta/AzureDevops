@@ -74,7 +74,7 @@ function New-AzDevopsReviewerPolicy {
         $Id | ForEach-Object {
             $response = $null
             
-            $policyString = $script:ConfigurationStrings.ReviewersPolicy
+            $policyString = $script:ConfigurationStrings.ReviewerPolicy
             $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
 
             if ($PSCmdlet.ShouldProcess($RepositoryId)) {

@@ -61,7 +61,7 @@ function New-AzDevopsLinkedWorkItemPolicy {
         $Id | ForEach-Object {
             $response = $null
 
-            $policyString = $script:ConfigurationStrings.LinkedWorkItemsPolicy
+            $policyString = $script:ConfigurationStrings.LinkedWorkItemPolicy
             $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
     
             if ($PSCmdlet.ShouldProcess($_)) {
