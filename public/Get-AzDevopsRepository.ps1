@@ -14,7 +14,17 @@ function Get-AzDevopsRepository {
         [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "Name or ID of the repository.")]
         [string[]] $RepositoryId,
 
-        [switch]$IncludeParent
+        [Parameter(Mandatory = $false, HelpMessage = "Name or ID of the repository.")]
+        [switch] $IncludeParent,
+
+        [Parameter(Mandatory = $false, HelpMessage = "True to include reference links. The default value is false.")]
+        [switch] $IncludeLinks,
+
+        [Parameter(Mandatory = $false, HelpMessage = "True to include all remote URLs. The default value is false.")]
+        [switch] $IncludeAllUrls,
+
+        [Parameter(Mandatory = $false, HelpMessage = "True to include hidden repositories. The default value is false.")]
+        [switch] $IncludeHidden
     )
 
     begin {
@@ -36,17 +46,30 @@ function Get-AzDevopsRepository {
             $prjUrl = "$Project/"
         }
     
-        if ($IncludeParent.IsPresent) {
-            $parentUrl = "includeParent=true&"
-        }
+        
     }
 
     process {
         $RepositoryId | Foreach-Object {
             $urlPart = $response = $null
-            if ($_) { $urlPart = "/$_" }
+            if ($_) {
+                $urlPart = "/$_"
+                if ($IncludeParent.IsPresent) {$queryUrl = "includeParent=true&" }
 
-            $url = [string]::Format("{0}{1}_apis/git/repositories/{2}?{3}api-version=5.1", $areaUrl, $prjUrl, $urlPart, $parentUrl)
+                if ($IncludeLinks.IsPresent) { Write-Warning -Message "Can't use IncludeLinks in combination with ID. Ignoring." }
+                if ($IncludeAllUrls.IsPresent) { Write-Warning -Message "Can't use IncludeAllUrls in combination with ID. Ignoring." }
+                if ($IncludeHidden.IsPresent) { Write-Warning -Message "Can't use IncludeHidden in combination with ID. Ignoring." }
+            }
+            else {
+                $queryUrl = ""
+                if ($IncludeLinks.IsPresent) { $queryUrl += [string]"includeLinks=true&" }
+                if ($IncludeAllUrls.IsPresent) { $queryUrl += [string]"includeAllUrls=true&" }
+                if ($IncludeHidden.IsPresent) { $queryUrl += [string]"includeHidden=true&" }
+
+                if ($IncludeParent.IsPresent) {Write-Warning -Message "Can't use IncludeParent without an ID. Ignoring." }
+            }
+
+            $url = [string]::Format("{0}{1}_apis/git/repositories/{2}?{3}api-version=5.1", $areaUrl, $prjUrl, $urlPart, $queryUrl)
             Write-Verbose "Contructed url $url"
 
             $response = Invoke-RestMethod -Uri $url -Method Get -ContentType "application/json" -Headers $header

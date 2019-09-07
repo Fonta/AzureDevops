@@ -128,21 +128,21 @@ function Get-AzDevopsBuild {
                 if ($Definitions) { Write-Warning -Message "Can't use Definitions in combination with ID. Ignoring." }
                 if ($RepositoryType) { Write-Warning -Message "Can't use RepositoryType in combination with ID. Ignoring." }
 
-                $url = [string]::Format("{0}{1}/_apis/build/builds/{2}?{3}api-version=5.1", $areaUrl, $Project, $urlPart, $PropertyFilters)
+                $url = [string]::Format("{0}{1}/_apis/build/builds{2}?{3}api-version=5.1", $areaUrl, $Project, $urlPart, $propertyFiltersUrl)
             }
             else {
                 $queryUrl = ""
                 if ($RepositoryId) { $queryUrl += [string]::Format("repositoryId={0}&", $RepositoryId) }
                 if ($RepositoryType) { $queryUrl += [string]::Format("repositoryType={0}&", $RepositoryType) }
-                if ($BuildIds) { $queryUrl += [string]::Format("buildIds={0}&", $BuildIds) }
+                if ($BuildIds) { $queryUrl += [string]::Format("buildIds={0}&", $BuildIds -join ",") }
                 if ($BranchName) { $queryUrl += [string]::Format("branchName={0}&", $BranchName) }
                 if ($QueryOrder) { $queryUrl += [string]::Format("queryOrder={0}&", $QueryOrder) }
                 if ($DeletedFilter) { $queryUrl += [string]::Format("deletedFilter={0}&", $DeletedFilter) }
                 if ($MaxBuildsPerDefinition) { $queryUrl += [string]::Format("maxBuildsPerDefinition={0}&", $MaxBuildsPerDefinition) }
                 if ($ContinuationToken) { $queryUrl += [string]::Format("continuationToken={0}&", $ContinuationToken) }
                 if ($Top) { $queryUrl += [string]::Format('$top={0}&', $Top) }
-                if ($Properties) { $queryUrl += [string]::Format("properties={0}&", $Properties) }
-                if ($TagFilters) { $queryUrl += [string]::Format("tagFilters={0}&", $TagFilters) }
+                if ($Properties) { $queryUrl += [string]::Format("properties={0}&", $Properties -join ",") }
+                if ($TagFilters) { $queryUrl += [string]::Format("tagFilters={0}&", $TagFilters -join ",") }
                 if ($ResultFilter) { $queryUrl += [string]::Format("resultFilter={0}&", $ResultFilter) }
                 if ($StatusFilter) { $queryUrl += [string]::Format("statusFilter={0}&", $StatusFilter) }
                 if ($ReasonFilter) { $queryUrl += [string]::Format("reasonFilter={0}&", $ReasonFilter) }
@@ -150,12 +150,12 @@ function Get-AzDevopsBuild {
                 if ($MaxTime) { $queryUrl += [string]::Format("maxTime={0}&", $MaxTime) }
                 if ($MinTime) { $queryUrl += [string]::Format("minTime={0}&", $MinTime) }
                 if ($BuildNumber) { $queryUrl += [string]::Format("buildNumber={0}&", $BuildNumber) }
-                if ($Queues) { $queryUrl += [string]::Format("queues={0}&", $Queues) }
-                if ($Definitions) { $queryUrl += [string]::Format("definitions={0}&", $Definitions) }
+                if ($Queues) { $queryUrl += [string]::Format("queues={0}&", $Queues -join ",") }
+                if ($Definitions) { $queryUrl += [string]::Format("definitions={0}&", $Definitions -join ",") }
 
                 if ($PropertyFilters) { Write-Warning -Message "Can't use PropertyFilters without an ID. Ignoring." }
 
-                $url = [string]::Format("{0}{1}/_apis/build/builds/{2}?{3}api-version=5.1", $areaUrl, $Project, $urlPart, $queryUrl)
+                $url = [string]::Format("{0}{1}/_apis/build/builds?{3}api-version=5.1", $areaUrl, $Project, $urlPart, $queryUrl)
             }
             Write-Verbose "Contructed url $url"
 
