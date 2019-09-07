@@ -45,8 +45,6 @@ function Get-AzDevopsRepository {
         if ($PSBoundParameters.ContainsKey('Project')) {
             $prjUrl = "$Project/"
         }
-    
-        
     }
 
     process {
@@ -54,7 +52,7 @@ function Get-AzDevopsRepository {
             $urlPart = $response = $null
             if ($_) {
                 $urlPart = "/$_"
-                if ($IncludeParent.IsPresent) {$queryUrl = "includeParent=true&" }
+                if ($IncludeParent.IsPresent) { $queryUrl = "includeParent=true&" }
 
                 if ($IncludeLinks.IsPresent) { Write-Warning -Message "Can't use IncludeLinks in combination with ID. Ignoring." }
                 if ($IncludeAllUrls.IsPresent) { Write-Warning -Message "Can't use IncludeAllUrls in combination with ID. Ignoring." }
@@ -66,7 +64,7 @@ function Get-AzDevopsRepository {
                 if ($IncludeAllUrls.IsPresent) { $queryUrl += [string]"includeAllUrls=true&" }
                 if ($IncludeHidden.IsPresent) { $queryUrl += [string]"includeHidden=true&" }
 
-                if ($IncludeParent.IsPresent) {Write-Warning -Message "Can't use IncludeParent without an ID. Ignoring." }
+                if ($IncludeParent.IsPresent) { Write-Warning -Message "Can't use IncludeParent without an ID. Ignoring." }
             }
 
             $url = [string]::Format("{0}{1}_apis/git/repositories/{2}?{3}api-version=5.1", $areaUrl, $prjUrl, $urlPart, $queryUrl)
