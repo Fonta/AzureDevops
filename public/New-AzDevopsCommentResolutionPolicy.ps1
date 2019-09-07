@@ -1,30 +1,30 @@
 function New-AzDevopsCommentResolutionPolicy {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
     param (
-        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, HelpMessage = 'Personal Access Token created in Azure Devops.')]
+        [Parameter(Mandatory = $true, HelpMessage = 'Personal Access Token created in Azure Devops.')]
         [Alias('PAT')]
         [string] $PersonalAccessToken,
 
-        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, HelpMessage = 'Name of the organization.')]
+        [Parameter(Mandatory = $true, HelpMessage = 'Name of the organization.')]
         [Alias('OrgName')]
         [string] $OrganizationName,
 
-        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, HelpMessage = 'Name or ID of the project in Azure Devops.')]
+        [Parameter(Mandatory = $true, HelpMessage = 'Name or ID of the project in Azure Devops.')]
         [string] $Project,
 
-        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, HelpMessage = 'Id of the repository to set the policies on.')]
-        [string] $RepositoryId,
+        [Parameter(Mandatory = $true, ValueFromPipeline, ValueFromPipelineByPropertyName, HelpMessage = 'Id of the repository to set the policies on.')]
+        [string[]] $Id,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Branch/reg to set the polcies on E.G. "refs/heads/master"')]
+        [Parameter(Mandatory = $false, HelpMessage = 'Branch/reg to set the polcies on E.G. "refs/heads/master"')]
         [string] $Branch = 'refs/heads/master',
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Boolean if policy enabled or not.')]
+        [Parameter(Mandatory = $false, HelpMessage = 'Boolean if policy enabled or not.')]
         [bool] $Enabled = $true,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Boolean if policy is blocking or not.')]
+        [Parameter(Mandatory = $false, HelpMessage = 'Boolean if policy is blocking or not.')]
         [bool] $Blocking = $false,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Method of matching.')]
+        [Parameter(Mandatory = $false, HelpMessage = 'Method of matching.')]
         [string] $matchKind = 'Exact'
     )
     
@@ -53,34 +53,28 @@ function New-AzDevopsCommentResolutionPolicy {
 
         $url = [string]::Format('{0}{1}/_apis/policy/configurations?api-version=5.1', $areaUrl, $Project)
         Write-Verbose "Contructed url $url"
+
+        $results = New-Object -TypeName System.Collections.ArrayList
     }
     
     process {
-        $policy = @"
-{
-    "isEnabled": "$Enabled",
-    "isBlocking": "$Blocking",
-    "type": {
-        "id": "c6a1889d-b943-4856-b76f-9e46bb6b0df2"
-    },
-    "settings": {
-        "scope": [
-            {
-                "repositoryId": "$RepositoryId",
-                "matchKind": "$matchKind",
-                "refName": "$Branch"
-            }
-        ]
-    }
-}
-"@
+        $Id | ForEach-Object {
+            $response = $null
+            
+            $policyString = $script:ConfigurationStrings.CommentResolutionPolicy
+            $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
+            
+            if ($PSCmdlet.ShouldProcess($_)) {
+                $response = Invoke-RestMethod -Uri $url -Method Post -Headers $header -Body $policy -ContentType 'application/json'
 
-        if ($PSCmdlet.ShouldProcess($RepositoryId)) {
-            $response = Invoke-RestMethod -Uri $url -Method Post -Headers $header -Body $policy -ContentType 'application/json'
+                if ($response) {
+                    $results.Add($response) | Out-Null
+                }
+            }
         }
     }
     
     end {
-        return $response
+        return $results
     }
 }

@@ -13,10 +13,7 @@ function Set-AzDevopsReviewerPolicy {
         [string] $Project,
 
         [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Id of the repository to set the policies on.')]
-        [string] $Id,
-
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Id of the repository to set the policies on.')]
-        [string] $RepositoryId,
+        [string[]] $Id,
 
         [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Branch/reg to set the polcies on E.G. "refs/heads/master"')]
         [string] $Branch = 'refs/heads/master',
@@ -68,62 +65,46 @@ function Set-AzDevopsReviewerPolicy {
         }
         $areaUrl = Get-AzDevopsAreaUrl @areaParams
 
-        if (-not ($PSBoundParameters.ContainsKey('Id'))) {
+        $results = New-Object -TypeName System.Collections.ArrayList
+    }
+    
+    process {
+        $Id | ForEach-Object {
+            $policyUrl = $response = $null
+
             $policyConfigParams = @{
                 PersonalAccessToken = $PersonalAccessToken
                 OrganizationName    = $OrganizationName
                 Project             = $Project
-                RepositoryId        = $RepositoryId
+                RepositoryId        = $_
             }
-            $policyConfig = Get-AzDevopsPolicyConfiguration @policyConfigParams | Where-Object { $_.type.id -like 'fa4e907d-c16b-4a4c-9dfa-4906e5d171dd' }
-            
+            $policyConfig = Get-AzDevopsPolicyConfiguration @policyConfigParams | Where-Object { $_.type.id -like 'c6a1889d-b943-4856-b76f-9e46bb6b0df2' }
+
             if ($policyConfig) {
-                $Id = $policyConfig.id
+                $policyUrl = [string]::Format('/{0}', $policyConfig.id)
             }
             else {
                 Write-Verbose 'Was unable to find existing policy to update, switching method to Post to create new one.'
                 $method = 'Post'
             }
-        }
 
-        $url = [string]::Format('{0}{1}/_apis/policy/configurations/{2}?api-version=5.1', $areaUrl, $Project, $Id)
-        Write-Verbose "Contructed url $url"
-    }
-    
-    process {
-        $policy = @"
-{
-    "isBlocking": "$Blocking",
-    "isEnabled": "$Enabled",
-    "type": {
-        "id": "fa4e907d-c16b-4a4c-9dfa-4906e5d171dd"
-    },
-    "settings": {
-        "creatorVoteCounts": "$CreatorVoteCounts",
-        "resetOnSourcePush": "$resetOnSourcePush",
-        "allowDownvotes": "$allowDownvotes",
-        "scope": [
-            {
-                "repositoryId": "$RepositoryId",
-                "matchKind": "$matchKind",
-                "refName": "$Branch"
+            $policyString = $script:ConfigurationStrings.ReviewersPolicy
+            $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
+
+            $url = [string]::Format('{0}{1}/_apis/policy/configurations{2}?api-version=5.1', $areaUrl, $Project, $policyUrl)
+            Write-Verbose "Contructed url $url"
+
+            if ($PSCmdlet.ShouldProcess($Id)) {
+                $response = Invoke-RestMethod -Uri $url -Method $Method -Headers $header -body $policy -ContentType 'application/json'
+
+                $results.Add($response) | Out-Null
             }
-        ],
-        "minimumApproverCount": "$minimumApproverCount"
-    }
-}
-"@
-        if ($PSCmdlet.ShouldProcess($Id)) {
-            $result = Invoke-RestMethod -Uri $url -Method $method -Headers $header -body $policy -ContentType 'application/json'
         }
     }
     
     end {
-        if ($result) {
-            return $result
-        }
-        else {
-            return $false
-        }
+        return $results
     }
 }
+
+

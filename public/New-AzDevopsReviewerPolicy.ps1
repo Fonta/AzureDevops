@@ -1,42 +1,42 @@
 function New-AzDevopsReviewerPolicy {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
     param (
-        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, HelpMessage = 'Personal Access Token created in Azure Devops.')]
+        [Parameter(Mandatory = $true, HelpMessage = 'Personal Access Token created in Azure Devops.')]
         [Alias('PAT')]
         [string] $PersonalAccessToken,
 
-        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, HelpMessage = 'Name of the organization.')]
+        [Parameter(Mandatory = $true, HelpMessage = 'Name of the organization.')]
         [Alias('OrgName')]
         [string] $OrganizationName,
 
-        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, HelpMessage = 'Name or ID of the project in Azure Devops.')]
+        [Parameter(Mandatory = $true, HelpMessage = 'Name or ID of the project in Azure Devops.')]
         [string] $Project,
 
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, HelpMessage = 'Id of the repository to set the policies on.')]
-        [string] $RepositoryId,
+        [string[]] $Id,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Branch/reg to set the polcies on E.G. "refs/heads/master"')]
+        [Parameter(Mandatory = $false, HelpMessage = 'Branch/reg to set the polcies on E.G. "refs/heads/master"')]
         [string] $Branch = 'refs/heads/master',
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Boolean if policy enabled or not.')]
+        [Parameter(Mandatory = $false, HelpMessage = 'Boolean if policy enabled or not.')]
         [bool] $Enabled = $true,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Boolean if policy is blocking or not.')]
+        [Parameter(Mandatory = $false, HelpMessage = 'Boolean if policy is blocking or not.')]
         [bool] $Blocking = $true,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Integer.')]
+        [Parameter(Mandatory = $false, HelpMessage = 'Integer.')]
         [int] $minimumApproverCount = 2,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Boolean.')]
+        [Parameter(Mandatory = $false, HelpMessage = 'Boolean.')]
         [bool] $CreatorVoteCounts = $true,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Boolean.')]
+        [Parameter(Mandatory = $false, HelpMessage = 'Boolean.')]
         [bool] $allowDownvotes = $false,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Boolean.')]
+        [Parameter(Mandatory = $false, HelpMessage = 'Boolean.')]
         [bool] $resetOnSourcePush = $true,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = 'Method of matching.')]
+        [Parameter(Mandatory = $false, HelpMessage = 'Method of matching.')]
         [string] $matchKind = 'Exact'
     )
     
@@ -65,38 +65,28 @@ function New-AzDevopsReviewerPolicy {
 
         $url = [string]::Format('{0}{1}/_apis/policy/configurations?api-version=5.1', $areaUrl, $Project)
         Write-Verbose "Contructed url $url"
+
+        $results = New-Object -TypeName System.Collections.ArrayList
     }
     
     process {
-        $policy = @"
-{
-    "isBlocking": "$Blocking",
-    "isEnabled": "$Enabled",
-    "type": {
-        "id": "fa4e907d-c16b-4a4c-9dfa-4906e5d171dd"
-    },
-    "settings": {
-        "creatorVoteCounts": "$CreatorVoteCounts",
-        "resetOnSourcePush": "$resetOnSourcePush",
-        "allowDownvotes": "$allowDownvotes",
-        "scope": [
-            {
-                "repositoryId": "$RepositoryId",
-                "matchKind": "$matchKind",
-                "refName": "$Branch"
-            }
-        ],
-        "minimumApproverCount": "$minimumApproverCount"
-    }
-}
-"@
+        $Id | ForEach-Object {
+            $response = $null
+            
+            $policyString = $script:ConfigurationStrings.ReviewersPolicy
+            $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
 
-        if ($PSCmdlet.ShouldProcess($RepositoryId)) {
-            $response = Invoke-RestMethod -Uri $url -Method Post -Headers $header -body $policy -ContentType 'application/json'
+            if ($PSCmdlet.ShouldProcess($RepositoryId)) {
+                $response = Invoke-RestMethod -Uri $url -Method Post -Headers $header -body $policy -ContentType 'application/json'
+
+                if ($response) {
+                    $results.Add($response) | Out-Null
+                }
+            }
         }
     }
     
     end {
-        return $response
+        return $results
     }
 }
