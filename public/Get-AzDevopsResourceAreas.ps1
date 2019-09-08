@@ -24,7 +24,7 @@ function Get-AzDevopsResourceAreas {
 
         $WRParams = @{
             Uri         = $url
-            Method      = Get
+            Method      = 'Get'
             Headers     = $header
             ContentType = 'application/json'
         }

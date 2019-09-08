@@ -68,7 +68,7 @@ function Get-AzDevopsPolicyConfiguration {
 
             $WRParams = @{
                 Uri         = $url
-                Method      = Get
+                Method      = 'Get'
                 Headers     = $header
                 ContentType = 'application/json'
             }

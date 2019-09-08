@@ -80,7 +80,7 @@ function New-AzDevopsReviewerPolicy {
             if ($PSCmdlet.ShouldProcess($RepositoryId)) {
                 $WRParams = @{
                     Uri         = $url
-                    Method      = Post
+                    Method      = 'Post'
                     Headers     = $header
                     Body        = $policy
                     ContentType = 'application/json'

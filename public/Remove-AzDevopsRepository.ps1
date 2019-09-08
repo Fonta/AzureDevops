@@ -60,7 +60,7 @@ function Remove-AzDevopsRepository {
                     
                     $WRParams = @{
                         Uri         = $url
-                        Method      = Delete
+                        Method      = 'Delete'
                         Headers     = $header
                         ContentType = 'application/json'
                     }

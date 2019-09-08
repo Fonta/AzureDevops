@@ -93,7 +93,7 @@ function New-AzDevopsCodeReviewerPolicy {
 
                 $WRParams = @{
                     Uri         = $url
-                    Method      = Post
+                    Method      = 'Post'
                     Headers     = $header
                     Body        = $policy
                     ContentType = 'application/json'

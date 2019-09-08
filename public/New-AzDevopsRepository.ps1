@@ -60,7 +60,7 @@ function New-AzDevopsRepository {
 
             $WRParams = @{
                 Uri         = $url
-                Method      = Post
+                Method      = 'Post'
                 Headers     = $header
                 Body        = $body
                 ContentType = 'application/json'
