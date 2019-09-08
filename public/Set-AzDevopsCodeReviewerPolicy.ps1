@@ -89,7 +89,7 @@ function Set-AzDevopsCodeReviewerPolicy {
     
     process {
         $Id | ForEach-Object {
-            $policyUrl = $response = $null
+            $policyUrl = $WRResponse = $null
             $method = 'Put'
 
             $policyConfigParams = @{
@@ -135,13 +135,20 @@ function Set-AzDevopsCodeReviewerPolicy {
                 $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
             }
 
-            $url = [string]::Format('{0}{1}/_apis/policy/configurations{2}?api-version=5.1', $areaUrl, $Project, $policyUrl)
-            Write-Verbose "Contructed url $url"
-
             if ($PSCmdlet.ShouldProcess($Id)) {
-                $response = Invoke-WebRequest -Uri $url -Method $Method -Headers $header -Body $policy -ContentType 'application/json'
+                $url = [string]::Format('{0}{1}/_apis/policy/configurations{2}?api-version=5.1', $areaUrl, $Project, $policyUrl)
+                Write-Verbose "Contructed url $url"
 
-                Get-ResponseObject -InputObject $response | ForEach-Object {
+                $WRParams = @{
+                    Uri         = $url
+                    Method      = $Method
+                    Headers     = $header
+                    Body        = $policy
+                    ContentType = 'application/json'
+                }
+                $WRResponse = Invoke-WebRequest @WRParams
+
+                $WRResponse | Get-ResponseObject | ForEach-Object {
                     $results.Add($_) | Out-Null
                 }
             }

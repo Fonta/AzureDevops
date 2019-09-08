@@ -57,15 +57,21 @@ function Remove-AzDevopsPolicyConfiguration {
         }
 
         $gatheredPolicyIds | ForEach-Object {
-            $response = $null
-
-            $url = [string]::Format('{0}{1}/_apis/policy/configurations/{2}?api-version=5.1', $areaUrl, $Project, $_.id)
-            Write-Verbose "Contructed url $url"
+            $WRResponse = $null
 
             if ($PSCmdlet.ShouldProcess("$($_.type.displayName) policy (ID $($_.id))")) {
-                $response = Invoke-WebRequest -Uri $url -Method Delete -Headers $header -ContentType 'application/json'
+                $url = [string]::Format('{0}{1}/_apis/policy/configurations/{2}?api-version=5.1', $areaUrl, $Project, $_.id)
+                Write-Verbose "Contructed url $url"
 
-                Get-ResponseObject -InputObject $response | ForEach-Object {
+                $WRParams = @{
+                    Uri         = $url
+                    Method      = Delete
+                    Headers     = $header
+                    ContentType = 'application/json'
+                }
+                $WRResponse = Invoke-WebRequest @WRParams
+
+                $WRResponse | Get-ResponseObject | ForEach-Object {
                     $results.Add($_) | Out-Null
                 }
             }

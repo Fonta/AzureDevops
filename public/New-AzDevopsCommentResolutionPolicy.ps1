@@ -59,15 +59,22 @@ function New-AzDevopsCommentResolutionPolicy {
     
     process {
         $Id | ForEach-Object {
-            $response = $null
-            
-            $policyString = $script:ConfigurationStrings.CommentResolutionPolicy
-            $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
-            
-            if ($PSCmdlet.ShouldProcess($_)) {
-                $response = Invoke-WebRequest -Uri $url -Method Post -Headers $header -Body $policy -ContentType 'application/json'
+            $WRResponse = $null
 
-                Get-ResponseObject -InputObject $response | ForEach-Object {
+            if ($PSCmdlet.ShouldProcess($_)) {
+                $policyString = $script:ConfigurationStrings.CommentResolutionPolicy
+                $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
+            
+                $WRParams = @{
+                    Uri         = $url
+                    Method      = Post
+                    Headers     = $header
+                    Body        = $policy
+                    ContentType = 'application/json'
+                }
+                $WRResponse = Invoke-WebRequest @WRParams
+
+                $WRResponse | Get-ResponseObject | ForEach-Object {
                     $results.Add($_) | Out-Null
                 }
             }

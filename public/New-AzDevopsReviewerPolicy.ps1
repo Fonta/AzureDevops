@@ -25,7 +25,7 @@ function New-AzDevopsReviewerPolicy {
         [bool] $Blocking = $true,
 
         [Parameter(Mandatory = $false, HelpMessage = 'Integer.')]
-        [ValidateRange(1,10)]
+        [ValidateRange(1, 10)]
         [int] $minimumApproverCount = 2,
 
         [Parameter(Mandatory = $false, HelpMessage = 'Boolean.')]
@@ -72,15 +72,22 @@ function New-AzDevopsReviewerPolicy {
     
     process {
         $Id | ForEach-Object {
-            $response = $null
+            $WRResponse = $null
             
             $policyString = $script:ConfigurationStrings.ReviewerPolicy
             $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
 
             if ($PSCmdlet.ShouldProcess($RepositoryId)) {
-                $response = Invoke-WebRequest -Uri $url -Method Post -Headers $header -body $policy -ContentType 'application/json'
+                $WRParams = @{
+                    Uri         = $url
+                    Method      = Post
+                    Headers     = $header
+                    Body        = $policy
+                    ContentType = 'application/json'
+                }
+                $WRResponse = Invoke-WebRequest @WRParams
 
-                Get-ResponseObject -InputObject $response | ForEach-Object {
+                $WRResponse | Get-ResponseObject | ForEach-Object {
                     $results.Add($_) | Out-Null
                 }
             }

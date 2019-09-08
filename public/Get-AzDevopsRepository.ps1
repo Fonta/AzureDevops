@@ -49,7 +49,7 @@ function Get-AzDevopsRepository {
 
     process {
         $RepositoryId | Foreach-Object {
-            $idUrl = $queryUrl = $response = $null
+            $idUrl = $queryUrl = $WRResponse = $null
 
             if ($_) {
                 $idUrl = [string]::Format('/{0}', $_)
@@ -75,9 +75,15 @@ function Get-AzDevopsRepository {
             $url = [string]::Format('{0}{1}_apis/git/repositories{2}?{3}api-version=5.1', $areaUrl, $prjUrl, $idUrl, $queryUrl)
             Write-Verbose "Contructed url $url"
 
-            $response = Invoke-WebRequest -Uri $url -Method Get -ContentType 'application/json' -Headers $header
+            $WRParams = @{
+                Uri         = $url
+                Method      = Get
+                Headers     = $header
+                ContentType = 'application/json'
+            }
+            $WRResponse = Invoke-WebRequest @WRParams
     
-            Get-ResponseObject -InputObject $response | ForEach-Object {
+            $WRResponse | Get-ResponseObject | ForEach-Object {
                 $results.Add($_) | Out-Null
             }
         }

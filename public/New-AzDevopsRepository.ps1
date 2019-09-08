@@ -56,9 +56,18 @@ function New-AzDevopsRepository {
         }
         
         if ($PSCmdlet.ShouldProcess($newRepoArgs.name)) {
-            $response = Invoke-WebRequest -Uri $url -Method Post -Headers $header -body ($newRepoArgs | ConvertTo-Json) -ContentType 'application/json'
+            $body = ($newRepoArgs | ConvertTo-Json)
 
-            Get-ResponseObject -InputObject $response | ForEach-Object {
+            $WRParams = @{
+                Uri         = $url
+                Method      = Post
+                Headers     = $header
+                Body        = $body
+                ContentType = 'application/json'
+            }
+            $WRResponse = Invoke-WebRequest @WRParams
+
+            $WRResponse | Get-ResponseObject | ForEach-Object {
                 $results.Add($_) | Out-Null
             }
         }

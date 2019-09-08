@@ -44,22 +44,30 @@ function Remove-AzDevopsRepository {
 
     process {
         $Id | ForEach-Object {
-            # according to the docs, it should be possibel to use the name of the repo in the url but somehow doesnt work
+            $repo = $WRResponse = $null
+
+            # according to the docs, it should be possible to use the name of the repo in the url but somehow doesnt work
+            # therefor we first get the information of the repo for its id
             $repo = Get-AzDevopsRepository -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project -RepositoryId $_
 
             if ($repo) {
-                # $policies = Get-AzDevopsPolicyConfiguration -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project -RepositoryId $repo.id
-                # if ($policies) {
-                    $repo | Remove-AzDevopsPolicyConfiguration -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project
-                # }
-
-                $url = [string]::Format('{0}{1}/_apis/git/repositories/{2}?api-version=5.1', $areaUrl, $Project, $repo.id)
-                Write-Verbose "Contructed url $url"
-
                 if ($PSCmdlet.ShouldProcess($repo.name)) {
-                    $response = Invoke-WebRequest -Uri $url -Method Delete -Headers $header -ContentType 'application/json'
+                    Write-Verbose "Removing policies for $($repo.name)"
+                    $repo | Remove-AzDevopsPolicyConfiguration -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project
 
-                    Get-ResponseObject -InputObject $response | ForEach-Object {
+                    $url = [string]::Format('{0}{1}/_apis/git/repositories/{2}?api-version=5.1', $areaUrl, $Project, $repo.id)
+                    Write-Verbose "Contructed URL $url"
+                    
+                    $WRParams = @{
+                        Uri         = $url
+                        Method      = Delete
+                        Headers     = $header
+                        ContentType = 'application/json'
+                    }
+                    Write-Verbose "Removing repository $($repo.name)"
+                    $WRResponse = Invoke-WebRequest @WRParams
+
+                    $WRResponse | Get-ResponseObject | ForEach-Object {
                         $results.Add($_) | Out-Null
                     }
                 }

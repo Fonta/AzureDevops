@@ -59,15 +59,22 @@ function New-AzDevopsLinkedWorkItemPolicy {
     
     process {
         $Id | ForEach-Object {
-            $response = $null
-
-            $policyString = $script:ConfigurationStrings.LinkedWorkItemPolicy
-            $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
+            $WRResponse = $null
     
             if ($PSCmdlet.ShouldProcess($_)) {
-                $response = Invoke-WebRequest -Uri $url -Method Post -Headers $header -Body $policy -ContentType 'application/json'
+                $policyString = $script:ConfigurationStrings.LinkedWorkItemPolicy
+                $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
 
-                Get-ResponseObject -InputObject $response | ForEach-Object {
+                $WRParams = @{
+                    Uri         = $url
+                    Method      = Post
+                    Headers     = $header
+                    Body        = $policy
+                    ContentType = 'application/json'
+                }
+                $WRResponse = Invoke-WebRequest @WRParams
+
+                $WRResponse | Get-ResponseObject | ForEach-Object {
                     $results.Add($_) | Out-Null
                 }
             }

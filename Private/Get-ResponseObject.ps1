@@ -1,5 +1,6 @@
 function Get-ResponseObject {
     param (
+        [Parameter(Mandatory = $true, ValueFromPipeline, Position = 0)]
         [PSObject] $InputObject
     )
 

@@ -41,7 +41,7 @@ function Get-AzDevopsPolicyConfiguration {
 
     process {
         $Id | ForEach-Object {
-            $idUrl = $queryUrl = $response = $null
+            $idUrl = $queryUrl = $WRResponse = $null
 
             if ($_) {
                 if ($_.id) { $_ = $_.id }
@@ -66,14 +66,21 @@ function Get-AzDevopsPolicyConfiguration {
             $url = [string]::Format('{0}{1}/_apis/policy/configurations{2}?{3}api-version=5.1', $areaUrl, $Project, $idUrl, $queryUrl)
             Write-Verbose "Contructed url $url"
 
-            $response = Invoke-WebRequest -Uri $url -Method Get -ContentType 'application/json' -Headers $header
+            $WRParams = @{
+                Uri         = $url
+                Method      = Get
+                Headers     = $header
+                ContentType = 'application/json'
+            }
+            $WRResponse = Invoke-WebRequest @WRParams
 
-            Get-ResponseObject -InputObject $response | ForEach-Object {
+            $WRResponse | Get-ResponseObject | ForEach-Object {
                 if ($script:repo) {
                     if ($_.settings.scope.repositoryId -like $repo.id) {
                         $results.Add($_) | Out-Null
                     }
-                } else {
+                }
+                else {
                     $results.Add($_) | Out-Null
                 }
             }
