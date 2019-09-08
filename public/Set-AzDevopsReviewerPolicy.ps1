@@ -130,5 +130,3 @@ function Set-AzDevopsReviewerPolicy {
         return $results
     }
 }
-
-

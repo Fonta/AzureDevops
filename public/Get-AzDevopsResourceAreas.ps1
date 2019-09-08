@@ -41,4 +41,3 @@ function Get-AzDevopsResourceAreas {
         return $results 
     }
 }
-        

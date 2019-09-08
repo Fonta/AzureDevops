@@ -80,4 +80,3 @@ function Get-AzDevopsAuditLog {
         return $results
     }
 }
-        

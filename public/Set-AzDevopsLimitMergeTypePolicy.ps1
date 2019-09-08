@@ -142,5 +142,3 @@ function Set-AzDevopsLimitMergeTypePolicy {
         return $results
     }
 }
-
-

@@ -184,7 +184,7 @@ function Get-AzDevopsRelease {
                 Headers     = $header
                 ContentType = 'application/json'
             }
-            
+
             Invoke-WebRequest @WRParams | Get-ResponseObject | ForEach-Object {
                 $results.Add($_) | Out-Null
             }
@@ -197,4 +197,3 @@ function Get-AzDevopsRelease {
         }
     }
 }
-        
