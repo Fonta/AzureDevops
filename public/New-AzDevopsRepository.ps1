@@ -43,6 +43,8 @@ function New-AzDevopsRepository {
 
         $url = [string]::Format('{0}{1}/_apis/git/repositories?api-version=5.1', $areaUrl, $Project)
         Write-Verbose "Contructed url $url"
+
+        $results = New-Object -TypeName System.Collections.ArrayList
     }
     
     process {
@@ -54,13 +56,15 @@ function New-AzDevopsRepository {
         }
         
         if ($PSCmdlet.ShouldProcess($newRepoArgs.name)) {
-            $response = Invoke-RestMethod -Uri $url -Method Post -Headers $header -body ($newRepoArgs | ConvertTo-Json) -ContentType 'application/json'
+            $response = Invoke-WebRequest -Uri $url -Method Post -Headers $header -body ($newRepoArgs | ConvertTo-Json) -ContentType 'application/json'
+
+            Get-ResponseObject -InputObject $response | ForEach-Object {
+                $results.Add($_) | Out-Null
+            }
         }
     }
     
     end {
-        if ($response) {
-            return $response
-        }
+        return $results
     }
 }

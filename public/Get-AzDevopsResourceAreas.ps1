@@ -22,19 +22,15 @@ function Get-AzDevopsResourceAreas {
         $url = [string]::Format('https://dev.azure.com/{0}/_apis/resourceAreas', $OrganizationName)
         Write-Verbose "Contructed url $url"
 
-        $response = Invoke-RestMethod -Uri $url -Method Get -ContentType 'application/json' -Headers $header
-        
-        if ($response.value) {
-            $response.value | ForEach-Object {
-                $results.Add($_) | Out-Null
-            }
+        $response = Invoke-WebRequest -Uri $url -Method Get -ContentType 'application/json' -Headers $header
+
+        Get-ResponseObject -InputObject $response | ForEach-Object {
+            $results.Add($_) | Out-Null
         }
     }
 
     end {
-        if ($results) {
-            return $results 
-        }
+        return $results 
     }
 }
         

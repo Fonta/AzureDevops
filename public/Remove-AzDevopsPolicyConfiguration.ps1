@@ -49,10 +49,10 @@ function Remove-AzDevopsPolicyConfiguration {
             Write-Verbose "Contructed url $url"
 
             if ($PSCmdlet.ShouldProcess($value)) {
-                $removeResult = Invoke-RestMethod -Uri $url -Method Delete -ContentType 'application/json' -Headers $header
+                $response = Invoke-WebRequest -Uri $url -Method Delete -Headers $header -ContentType 'application/json'
 
-                if ($removeResult) {
-                    $results.Add($removeResult) | Out-Null
+                Get-ResponseObject -InputObject $response | ForEach-Object {
+                    $results.Add($_) | Out-Null
                 }
             }
         }

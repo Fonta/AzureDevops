@@ -1,4 +1,4 @@
-function New-AzDevopsLinkedWorkItemPolicy {
+function New-AzDevopsLimitMergeTypePolicy {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
     param (
         [Parameter(Mandatory = $true, HelpMessage = 'Personal Access Token created in Azure Devops.')]
@@ -12,20 +12,32 @@ function New-AzDevopsLinkedWorkItemPolicy {
         [Parameter(Mandatory = $true, HelpMessage = 'Name or ID of the project in Azure Devops.')]
         [string] $Project,
 
-        [Parameter(Mandatory = $true, ValueFromPipeline, ValueFromPipelineByPropertyName, HelpMessage = 'Id of the repository to set the policies on.')]
+        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, HelpMessage = 'Id of the repository to set the policies on.')]
         [string[]] $Id,
 
         [Parameter(Mandatory = $false, HelpMessage = 'Branch/reg to set the polcies on E.G. "refs/heads/master"')]
         [string] $Branch = 'refs/heads/master',
 
+        [Parameter(Mandatory = $false, HelpMessage = 'Method of matching.')]
+        [string] $matchKind = 'Exact',
+
         [Parameter(Mandatory = $false, HelpMessage = 'Boolean if policy enabled or not.')]
         [bool] $Enabled = $true,
 
         [Parameter(Mandatory = $false, HelpMessage = 'Boolean if policy is blocking or not.')]
-        [bool] $Blocking = $false,
+        [bool] $Blocking = $true,
 
-        [Parameter(Mandatory = $false, HelpMessage = 'Method of matching.')]
-        [string] $matchKind = 'Exact'
+        [Parameter(Mandatory = $false, HelpMessage = 'Boolean.')]
+        [bool] $AllowBasicMerge = $true,
+
+        [Parameter(Mandatory = $false, HelpMessage = 'Boolean.')]
+        [bool] $AllowSquashMerge = $true,
+
+        [Parameter(Mandatory = $false, HelpMessage = 'Boolean.')]
+        [bool] $AllowRebaseAndFastForward = $true,
+
+        [Parameter(Mandatory = $false, HelpMessage = 'Boolean.')]
+        [bool] $AllowRebaseWithMergeCommit = $true
     )
     
     begin {
@@ -60,12 +72,12 @@ function New-AzDevopsLinkedWorkItemPolicy {
     process {
         $Id | ForEach-Object {
             $response = $null
-
-            $policyString = $script:ConfigurationStrings.LinkedWorkItemPolicy
+            
+            $policyString = $script:ConfigurationStrings.LimitMergeTypePolicy
             $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
-    
-            if ($PSCmdlet.ShouldProcess($_)) {
-                $response = Invoke-WebRequest -Uri $url -Method Post -Headers $header -Body $policy -ContentType 'application/json'
+
+            if ($PSCmdlet.ShouldProcess($RepositoryId)) {
+                $response = Invoke-WebRequest -Uri $url -Method Post -Headers $header -body $policy -ContentType 'application/json'
 
                 Get-ResponseObject -InputObject $response | ForEach-Object {
                     $results.Add($_) | Out-Null

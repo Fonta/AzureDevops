@@ -36,6 +36,8 @@ function Get-AzDevopsAuditLog {
             AreaId              = '94ff054d-5ee1-413d-9341-3f4a7827de2e'
         }
         $areaUrl = Get-AzDevopsAreaUrl @areaParams
+
+        $results = New-Object -TypeName System.Collections.ArrayList
     }
 
     process {
@@ -50,13 +52,15 @@ function Get-AzDevopsAuditLog {
         $url = [string]::Format('{0}_apis/audit/auditlog?{1}api-version=5.1-preview.1', $areaUrl, $queryUrl)
         Write-Verbose "Contructed url $url"
 
-        $response = Invoke-RestMethod -Uri $url -Method Get -ContentType 'application/json' -Headers $header
+        $response = Invoke-WebRequest -Uri $url -Method Get -ContentType 'application/json' -Headers $header
+
+        Get-ResponseObject -InputObject $response | ForEach-Object {
+            $results.Add($_) | Out-Null
+        }
     }
 
     end {
-        if ($response) {
-            return $response 
-        }
+        return $results
     }
 }
         

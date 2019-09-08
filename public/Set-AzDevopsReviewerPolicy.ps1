@@ -111,17 +111,17 @@ function Set-AzDevopsReviewerPolicy {
             Write-Verbose "Contructed url $url"
 
             if ($PSCmdlet.ShouldProcess($Id)) {
-                $response = Invoke-RestMethod -Uri $url -Method $Method -Headers $header -body $policy -ContentType 'application/json'
+                $response = Invoke-WebRequest -Uri $url -Method $Method -Headers $header -Body $policy -ContentType 'application/json'
 
-                $results.Add($response) | Out-Null
+                Get-ResponseObject -InputObject $response | ForEach-Object {
+                    $results.Add($_) | Out-Null
+                }
             }
         }
     }
     
     end {
-        if ($results) {
-            return $results
-        }
+        return $results
     }
 }
 

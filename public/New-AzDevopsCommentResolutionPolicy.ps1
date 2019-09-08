@@ -65,18 +65,16 @@ function New-AzDevopsCommentResolutionPolicy {
             $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
             
             if ($PSCmdlet.ShouldProcess($_)) {
-                $response = Invoke-RestMethod -Uri $url -Method Post -Headers $header -Body $policy -ContentType 'application/json'
+                $response = Invoke-WebRequest -Uri $url -Method Post -Headers $header -Body $policy -ContentType 'application/json'
 
-                if ($response) {
-                    $results.Add($response) | Out-Null
+                Get-ResponseObject -InputObject $response | ForEach-Object {
+                    $results.Add($_) | Out-Null
                 }
             }
         }
     }
     
     end {
-        if ($results) {
-            return $results
-        }
+        return $results
     }
 }

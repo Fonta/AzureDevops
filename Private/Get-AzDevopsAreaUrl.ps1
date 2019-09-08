@@ -23,7 +23,9 @@ function Get-AzDevopsAreaUrl {
     $resourceAreasApiUrl = [string]::Format("{0}/_apis/resourceAreas/{1}?api-preview=5.0-preview.1", $orgUrl, $AreaId)
 
     # Do a GET on this URL (this returns an object with a "locationUrl" field)
-    $results = Invoke-RestMethod -Uri $resourceAreasApiUrl -Headers $header
+    $response = Invoke-WebRequest -Uri $resourceAreasApiUrl -Headers $header
+
+    $results = Get-ResponseObject -InputObject $response
 
     if ($results) {
         return $results.locationUrl

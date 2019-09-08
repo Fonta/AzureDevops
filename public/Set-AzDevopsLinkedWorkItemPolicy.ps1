@@ -79,6 +79,8 @@ function Set-AzDevopsLinkedWorkItemPolicy {
                 if ($PSBoundParameters.ContainsKey('Blocking')) { $policyConfig.isBlocking = $Blocking }
                 if ($PSBoundParameters.ContainsKey('Branch')) { $policyConfig.settings.scope.refName = $Branch }
                 if ($PSBoundParameters.ContainsKey('MatchKind')) { $policyConfig.settings.scope.matchKind = $MatchKind }
+
+                $policy = $policyConfig | ConvertTo-Json -Depth 5
             }
             else {
                 Write-Verbose 'Was unable to find existing policy to update, switching method to Post to create new one.'
@@ -88,22 +90,20 @@ function Set-AzDevopsLinkedWorkItemPolicy {
                 $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
             }
 
-            
-
             $url = [string]::Format('{0}{1}/_apis/policy/configurations{2}?api-version=5.1', $areaUrl, $Project, $policyUrl)
             Write-Verbose "Contructed url $url"
 
             if ($PSCmdlet.ShouldProcess($Id)) {
-                $response = Invoke-RestMethod -Uri $url -Method $Method -Headers $header -body $policy -ContentType 'application/json'
+                $response = Invoke-WebRequest -Uri $url -Method $Method -Headers $header -Body $policy -ContentType 'application/json'
 
-                $results.Add($response) | Out-Null
+                Get-ResponseObject -InputObject $response | ForEach-Object {
+                    $results.Add($_) | Out-Null
+                }
             }
         }
     }
     
     end {
-        if ($results) {
-            return $results
-        }
+        return $results
     }
 }
