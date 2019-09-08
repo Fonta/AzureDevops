@@ -8,6 +8,9 @@ function Get-AzDevopsAuditLog {
         [Alias('OrgName')]
         [string] $OrganizationName,
 
+        [Parameter(Mandatory = $false, HelpMessage = 'Name of the organization.')]
+        [string] $Project,
+
         [Parameter(Mandatory = $false, HelpMessage = 'Start time of download window.')]
         [string]$StartTime,
 
@@ -62,6 +65,17 @@ function Get-AzDevopsAuditLog {
 
         $WRResponse | Get-ResponseObject | ForEach-Object {
             $results.Add($_) | Out-Null
+        }
+
+        $WRResponse | Get-ResponseObject | ForEach-Object {
+            if ($PSBoundParameters.ContainsKey('Project')) {
+                if ($_.projectName -like $Project) {
+                    $results.Add($_) | Out-Null
+                }
+            }
+            else {
+                $results.Add($_) | Out-Null
+            }
         }
     }
 

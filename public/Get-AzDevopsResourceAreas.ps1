@@ -6,7 +6,10 @@ function Get-AzDevopsResourceAreas {
 
         [Parameter(Mandatory = $true, HelpMessage = 'Name of the organization.')]
         [Alias('OrgName')]
-        [string] $OrganizationName
+        [string] $OrganizationName,
+
+        [Parameter(Mandatory = $false, HelpMessage = 'This param is purely in this function for compatibilty.')]
+        [string] $Project
     )
 
     begin {
