@@ -12,7 +12,7 @@ function Get-AzDevopsRepository {
         [string] $Project,
 
         [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = 'Name or ID of the repository.')]
-        [string[]] $RepositoryId,
+        [string[]] $Id,
 
         [Parameter(Mandatory = $false, HelpMessage = 'Name or ID of the repository.')]
         [switch] $IncludeParent,
@@ -48,8 +48,8 @@ function Get-AzDevopsRepository {
     }
 
     process {
-        $RepositoryId | Foreach-Object {
-            $idUrl = $queryUrl = $WRResponse = $null
+        $Id | Foreach-Object {
+            $idUrl = $queryUrl = $null
 
             if ($_) {
                 $idUrl = [string]::Format('/{0}', $_)
@@ -81,17 +81,14 @@ function Get-AzDevopsRepository {
                 Headers     = $header
                 ContentType = 'application/json'
             }
-            $WRResponse = Invoke-WebRequest @WRParams
-    
-            $WRResponse | Get-ResponseObject | ForEach-Object {
+
+            Invoke-WebRequest @WRParams | Get-ResponseObject | ForEach-Object {
                 $results.Add($_) | Out-Null
             }
         }
     }
 
     end {
-        if ($results) {
-            return $results 
-        }
+        return $results 
     }
 }

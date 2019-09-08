@@ -71,8 +71,6 @@ function New-AzDevopsLimitMergeTypePolicy {
     
     process {
         $Id | ForEach-Object {
-            $WRResponse = $null
-
             if ($PSCmdlet.ShouldProcess($RepositoryId)) {
                 $policyString = $script:ConfigurationStrings.LimitMergeTypePolicy
                 $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
@@ -84,9 +82,8 @@ function New-AzDevopsLimitMergeTypePolicy {
                     Body        = $policy
                     ContentType = 'application/json'
                 }
-                $WRResponse = Invoke-WebRequest @WRParams
 
-                $WRResponse | Get-ResponseObject | ForEach-Object {
+                Invoke-WebRequest @WRParams | Get-ResponseObject | ForEach-Object {
                     $results.Add($_) | Out-Null
                 }
             }

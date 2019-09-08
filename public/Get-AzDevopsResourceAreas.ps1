@@ -31,9 +31,8 @@ function Get-AzDevopsResourceAreas {
             Headers     = $header
             ContentType = 'application/json'
         }
-        $WRResponse = Invoke-WebRequest @WRParams
 
-        $WRResponse | Get-ResponseObject | ForEach-Object {
+        Invoke-WebRequest @WRParams | Get-ResponseObject | ForEach-Object {
             $results.Add($_) | Out-Null
         }
     }

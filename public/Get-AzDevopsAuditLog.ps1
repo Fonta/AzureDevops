@@ -9,7 +9,7 @@ function Get-AzDevopsAuditLog {
         [string] $OrganizationName,
 
         [Parameter(Mandatory = $false, HelpMessage = 'Name of the organization.')]
-        [string] $Project,
+        [string[]] $Project,
 
         [Parameter(Mandatory = $false, HelpMessage = 'Start time of download window.')]
         [string]$StartTime,
@@ -61,16 +61,13 @@ function Get-AzDevopsAuditLog {
             Headers     = $header
             ContentType = 'application/json'
         }
-        $WRResponse = Invoke-WebRequest @WRParams
 
-        $WRResponse | Get-ResponseObject | ForEach-Object {
-            $results.Add($_) | Out-Null
-        }
-
-        $WRResponse | Get-ResponseObject | ForEach-Object {
+        Invoke-WebRequest @WRParams | Get-ResponseObject | ForEach-Object {
             if ($PSBoundParameters.ContainsKey('Project')) {
-                if ($_.projectName -like $Project) {
-                    $results.Add($_) | Out-Null
+                foreach ($name in $Project) {
+                    if ($_.projectName -like $name) {
+                        $results.Add($_) | Out-Null
+                    }
                 }
             }
             else {

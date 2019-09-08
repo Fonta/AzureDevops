@@ -41,7 +41,7 @@ function Get-AzDevopsPolicyConfiguration {
 
     process {
         $Id | ForEach-Object {
-            $idUrl = $queryUrl = $WRResponse = $null
+            $idUrl = $queryUrl = $null
 
             if ($_) {
                 if ($_.id) { $_ = $_.id }
@@ -72,9 +72,8 @@ function Get-AzDevopsPolicyConfiguration {
                 Headers     = $header
                 ContentType = 'application/json'
             }
-            $WRResponse = Invoke-WebRequest @WRParams
 
-            $WRResponse | Get-ResponseObject | ForEach-Object {
+            Invoke-WebRequest @WRParams | Get-ResponseObject | ForEach-Object {
                 if ($script:repo) {
                     if ($_.settings.scope.repositoryId -like $repo.id) {
                         $results.Add($_) | Out-Null

@@ -53,7 +53,7 @@ function Get-AzDevopsProject {
 
     process {
         $Project | ForEach-Object {
-            $idUrl = $queryUrl = $WRResponse = $null
+            $idUrl = $queryUrl = $null
 
             if ($_) {
                 $idUrl = [string]::Format('/{0}', $_)
@@ -91,9 +91,8 @@ function Get-AzDevopsProject {
                 Headers     = $header
                 ContentType = 'application/json'
             }
-            $WRResponse = Invoke-WebRequest @WRParams
 
-            $WRResponse | Get-ResponseObject | ForEach-Object {
+            Invoke-WebRequest @WRParams | Get-ResponseObject | ForEach-Object {
                 $results.Add($_) | Out-Null
             }
         }

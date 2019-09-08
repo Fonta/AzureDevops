@@ -44,11 +44,11 @@ function Remove-AzDevopsRepository {
 
     process {
         $Id | ForEach-Object {
-            $repo = $WRResponse = $null
+            $repo = $null
 
             # according to the docs, it should be possible to use the name of the repo in the url but somehow doesnt work
             # therefor we first get the information of the repo for its id
-            $repo = Get-AzDevopsRepository -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project -RepositoryId $_
+            $repo = Get-AzDevopsRepository -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project -Id $_
 
             if ($repo) {
                 if ($PSCmdlet.ShouldProcess($repo.name)) {
@@ -64,10 +64,9 @@ function Remove-AzDevopsRepository {
                         Headers     = $header
                         ContentType = 'application/json'
                     }
-                    Write-Verbose "Removing repository $($repo.name)"
-                    $WRResponse = Invoke-WebRequest @WRParams
 
-                    $WRResponse | Get-ResponseObject | ForEach-Object {
+                    Write-Verbose "Removing repository $($repo.name)"
+                    Invoke-WebRequest @WRParams | Get-ResponseObject | ForEach-Object {
                         $results.Add($_) | Out-Null
                     }
                 }

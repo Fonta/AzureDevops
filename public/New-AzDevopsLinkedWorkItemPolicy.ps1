@@ -59,8 +59,6 @@ function New-AzDevopsLinkedWorkItemPolicy {
     
     process {
         $Id | ForEach-Object {
-            $WRResponse = $null
-    
             if ($PSCmdlet.ShouldProcess($_)) {
                 $policyString = $script:ConfigurationStrings.LinkedWorkItemPolicy
                 $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
@@ -72,9 +70,8 @@ function New-AzDevopsLinkedWorkItemPolicy {
                     Body        = $policy
                     ContentType = 'application/json'
                 }
-                $WRResponse = Invoke-WebRequest @WRParams
 
-                $WRResponse | Get-ResponseObject | ForEach-Object {
+                Invoke-WebRequest @WRParams | Get-ResponseObject | ForEach-Object {
                     $results.Add($_) | Out-Null
                 }
             }

@@ -34,7 +34,7 @@ function Get-AzDevopsPolicyTypes {
 
     process {
         $Id | ForEach-Object {
-            $idUrl = $WRResponse = $null
+            $idUrl = $null
 
             if ($_) {
                 $idUrl = [string]::Format('/{0}', $_)
@@ -49,9 +49,8 @@ function Get-AzDevopsPolicyTypes {
                 Headers     = $header
                 ContentType = 'application/json'
             }
-            $WRResponse = Invoke-WebRequest @WRParams
 
-            $WRResponse | Get-ResponseObject | ForEach-Object {
+            Invoke-WebRequest @WRParams | Get-ResponseObject | ForEach-Object {
                 $results.Add($_) | Out-Null
             }
         }

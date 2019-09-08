@@ -85,8 +85,6 @@ function New-AzDevopsCodeReviewerPolicy {
     
     process {
         $Id | ForEach-Object {
-            $WRResponse = $null
-
             if ($PSCmdlet.ShouldProcess($RepositoryId)) {
                 $policyString = $script:ConfigurationStrings.CodeReviewerPolicy
                 $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
@@ -98,9 +96,8 @@ function New-AzDevopsCodeReviewerPolicy {
                     Body        = $policy
                     ContentType = 'application/json'
                 }
-                $WRResponse = Invoke-WebRequest @WRParams
 
-                $WRResponse | Get-ResponseObject | ForEach-Object {
+                Invoke-WebRequest @WRParams | Get-ResponseObject | ForEach-Object {
                     $results.Add($_) | Out-Null
                 }
             }

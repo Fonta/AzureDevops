@@ -59,8 +59,6 @@ function New-AzDevopsCommentResolutionPolicy {
     
     process {
         $Id | ForEach-Object {
-            $WRResponse = $null
-
             if ($PSCmdlet.ShouldProcess($_)) {
                 $policyString = $script:ConfigurationStrings.CommentResolutionPolicy
                 $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
@@ -72,9 +70,8 @@ function New-AzDevopsCommentResolutionPolicy {
                     Body        = $policy
                     ContentType = 'application/json'
                 }
-                $WRResponse = Invoke-WebRequest @WRParams
 
-                $WRResponse | Get-ResponseObject | ForEach-Object {
+                Invoke-WebRequest @WRParams | Get-ResponseObject | ForEach-Object {
                     $results.Add($_) | Out-Null
                 }
             }
