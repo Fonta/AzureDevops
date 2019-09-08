@@ -12,8 +12,9 @@ function Remove-AzDevopsPolicyConfiguration {
         [Parameter(Mandatory = $true, HelpMessage = 'Name or ID of the project in Azure Devops.')]
         [string] $Project,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, ValueFromPipelineByPropertyName, HelpMessage = 'Id of the policy configuration to remove.')]
-        [int[]] $Id
+        # Parameter type is undefined because of possibility to input repository object or guid or policy object or id
+        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName, ValueFromPipeline, HelpMessage = 'Id of the policy configuration to remove.')]
+        $Id
     )
     
     begin {
@@ -44,11 +45,24 @@ function Remove-AzDevopsPolicyConfiguration {
     }
 
     process {
+        $gatheredPolicyIds = New-Object -TypeName System.Collections.ArrayList
+
         $Id | ForEach-Object {
-            $url = [string]::Format('{0}{1}/_apis/policy/configurations/{2}?api-version=5.1', $areaUrl, $Project, $_)
+            if ($_.id) { $_ = $_.id }
+
+            Write-Verbose "Getting policies for input ID $_"
+            Get-AzDevopsPolicyConfiguration -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project -Id $_ | ForEach-Object {
+                $gatheredPolicyIds.Add($_) | Out-Null
+            }
+        }
+
+        $gatheredPolicyIds | ForEach-Object {
+            $response = $null
+
+            $url = [string]::Format('{0}{1}/_apis/policy/configurations/{2}?api-version=5.1', $areaUrl, $Project, $_.id)
             Write-Verbose "Contructed url $url"
 
-            if ($PSCmdlet.ShouldProcess($value)) {
+            if ($PSCmdlet.ShouldProcess("$($_.type.displayName) policy (ID $($_.id))")) {
                 $response = Invoke-WebRequest -Uri $url -Method Delete -Headers $header -ContentType 'application/json'
 
                 Get-ResponseObject -InputObject $response | ForEach-Object {
@@ -59,8 +73,6 @@ function Remove-AzDevopsPolicyConfiguration {
     }
 
     end {
-        if ($results) {
-            return $results
-        }
+        return $results
     }
 }
