@@ -47,7 +47,7 @@ function Get-AzDevopsPolicyConfiguration {
                 if ($_.id) { $_ = $_.id }
 
                 if ($_ -match ("^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$")) {
-                    $script:repo = Get-AzDevopsRepository -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project -RepositoryId $_
+                    $script:repo = Get-AzDevopsRepository -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project -Id $_
                 }
                 else {
                     $idUrl = [string]::Format('/{0}', $_)
