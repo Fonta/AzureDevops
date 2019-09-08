@@ -12,11 +12,9 @@ function Get-AzDevopsPolicyConfiguration {
         [Parameter(Mandatory = $true, HelpMessage = 'Name or ID of the project in Azure Devops.')]
         [string] $Project,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = 'ID of the policy in Azure Devops.')]
-        [string[]] $Id,
-
-        [Parameter(Mandatory = $false, HelpMessage = 'Name or ID of a repository.')]
-        [string] $RepositoryId,
+        # Parameter type is undefined because of possibility to input repository object or guid or policy object or id
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ValueFromPipeline, HelpMessage = 'ID of the policy or repository in Azure Devops.')]
+        $Id,
 
         [Parameter(Mandatory = $false, HelpMessage = '[Provided for legacy reasons] The scope on which a subset of policies is defined.')]
         [string] $Scope,
@@ -39,10 +37,6 @@ function Get-AzDevopsPolicyConfiguration {
         $areaUrl = Get-AzDevopsAreaUrl @areaParams
     
         $results = New-Object -TypeName System.Collections.ArrayList
-    
-        if ($PSBoundParameters.ContainsKey('RepositoryId')) {
-            $repo = Get-AzDevopsRepository -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project -RepositoryId $RepositoryId
-        }
     }
 
     process {
@@ -50,8 +44,15 @@ function Get-AzDevopsPolicyConfiguration {
             $idUrl = $queryUrl = $response = $null
 
             if ($_) {
-                $idUrl = [string]::Format('/{0}', $_)
+                if ($_.id) { $_ = $_.id }
 
+                if ($_ -match ("^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$")) {
+                    $script:repo = Get-AzDevopsRepository -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project -RepositoryId $_
+                }
+                else {
+                    $idUrl = [string]::Format('/{0}', $_)
+                }
+                
                 # Not allowed
                 if ($Scope) { Write-Warning -Message 'Unable to use Scope in combination with ID. Ignoring Scope value' }
                 if ($policyType) { Write-Warning -Message 'Unable to use PolicyType in combination with ID. Ignoring PolicyType value' }
@@ -68,18 +69,18 @@ function Get-AzDevopsPolicyConfiguration {
             $response = Invoke-WebRequest -Uri $url -Method Get -ContentType 'application/json' -Headers $header
 
             Get-ResponseObject -InputObject $response | ForEach-Object {
-                $results.Add($_) | Out-Null
+                if ($script:repo) {
+                    if ($_.settings.scope.repositoryId -like $repo.id) {
+                        $results.Add($_) | Out-Null
+                    }
+                } else {
+                    $results.Add($_) | Out-Null
+                }
             }
         }
     }
 
     end {
-        if ($results) {
-            if ($PSBoundParameters.ContainsKey('RepositoryId')) {
-                $results = $results | where-object { $_.settings.scope.repositoryId -like $repo.id }
-            }
-            
-            return $results
-        }
+        return $results
     }
 }
