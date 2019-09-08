@@ -48,10 +48,10 @@ function Remove-AzDevopsRepository {
             $repo = Get-AzDevopsRepository -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project -RepositoryId $_
 
             if ($repo) {
-                $policies = Get-AzDevopsPolicyConfiguration -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project -RepositoryId $repo.id
-                if ($policies) {
-                    $policies | Remove-AzDevopsPolicyConfiguration -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project
-                }
+                # $policies = Get-AzDevopsPolicyConfiguration -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project -RepositoryId $repo.id
+                # if ($policies) {
+                    $repo | Remove-AzDevopsPolicyConfiguration -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project
+                # }
 
                 $url = [string]::Format('{0}{1}/_apis/git/repositories/{2}?api-version=5.1', $areaUrl, $Project, $repo.id)
                 Write-Verbose "Contructed url $url"
