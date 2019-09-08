@@ -83,7 +83,7 @@ function New-AzDevopsReviewerPolicy {
                     Body        = $policy
                     ContentType = 'application/json'
                 }
-                
+
                 Invoke-WebRequest @WRParams | Get-ResponseObject | ForEach-Object {
                     $results.Add($_) | Out-Null
                 }
