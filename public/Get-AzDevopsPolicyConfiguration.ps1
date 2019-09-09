@@ -47,7 +47,7 @@ function Get-AzDevopsPolicyConfiguration {
                 if ($_.id) { $_ = $_.id }
 
                 if ($_ -match ("^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$")) {
-                    $script:repo = Get-AzDevopsRepository -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project -Id $_
+                    $script:foundRepo = Get-AzDevopsRepository -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project -Id $_
                 }
                 else {
                     $idUrl = [string]::Format('/{0}', $_)
@@ -74,8 +74,8 @@ function Get-AzDevopsPolicyConfiguration {
             }
 
             Invoke-WebRequest @WRParams | Get-ResponseObject | ForEach-Object {
-                if ($script:repo) {
-                    if ($_.settings.scope.repositoryId -like $repo.id) {
+                if ($script:foundRepo) {
+                    if ($_.settings.scope.repositoryId -like $script:foundRepo.id) {
                         $results.Add($_) | Out-Null
                     }
                 }
