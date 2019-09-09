@@ -63,7 +63,7 @@ function Set-AzDevopsLinkedWorkItemPolicy {
                 PersonalAccessToken = $PersonalAccessToken
                 OrganizationName    = $OrganizationName
                 Project             = $Project
-                RepositoryId        = $_
+                Id                  = $_
             }
             $policyConfig = Get-AzDevopsPolicyConfiguration @policyConfigParams | Where-Object { $_.type.id -like '40e92b44-2fe1-4dd6-b3d8-74a9c21d0c6e' }
 
