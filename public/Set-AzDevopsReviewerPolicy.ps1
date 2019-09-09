@@ -76,7 +76,7 @@ function Set-AzDevopsReviewerPolicy {
                 PersonalAccessToken = $PersonalAccessToken
                 OrganizationName    = $OrganizationName
                 Project             = $Project
-                RepositoryId        = $_
+                Id                  = $_
             }
             $policyConfig = Get-AzDevopsPolicyConfiguration @policyConfigParams | Where-Object { $_.type.id -like 'fa4e907d-c16b-4a4c-9dfa-4906e5d171dd' }
 
