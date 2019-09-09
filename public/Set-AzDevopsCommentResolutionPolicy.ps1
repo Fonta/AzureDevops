@@ -63,7 +63,7 @@ function Set-AzDevopsCommentResolutionPolicy {
                 PersonalAccessToken = $PersonalAccessToken
                 OrganizationName    = $OrganizationName
                 Project             = $Project
-                RepositoryId        = $_
+                Id                  = $_
             }
             $policyConfig = Get-AzDevopsPolicyConfiguration @policyConfigParams | Where-Object { $_.type.id -like 'c6a1889d-b943-4856-b76f-9e46bb6b0df2' }
 
