@@ -96,7 +96,7 @@ function Set-AzDevopsCodeReviewerPolicy {
                 PersonalAccessToken = $PersonalAccessToken
                 OrganizationName    = $OrganizationName
                 Project             = $Project
-                RepositoryId        = $_
+                Id                  = $_
             }
             if ($PSBoundParameters.ContainsKey('PolicyId')) {
                 $policyConfigParams.Id = $PolicyId
