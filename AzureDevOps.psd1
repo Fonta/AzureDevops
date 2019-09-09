@@ -68,13 +68,29 @@
     # NestedModules = @()
 
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-    FunctionsToExport = '*'
-         # 'New-AzDevopsRepository',
-        # 'Set-AzDevopsReviewerPolicies',
-        # 'Set-AzDevopsLinkedWorkItemPolicies',
-        # 'Get-AzDevopsPolicyConfiguration',
-        # 'Remove-AzDevopsPolicyConfiguration',
-        # 'Get-AzDevopsProject'
+    FunctionsToExport = (
+        'Get-AzDevopsAuditLog',
+        'Get-AzDevopsBuild',
+        'Get-AzDevopsPolicyConfiguration',
+        'Get-AzDevopsPolicyTypes',
+        'Get-AzDevopsProject',
+        'Get-AzDevopsRelease',
+        'Get-AzDevopsRepository',
+        'Get-AzDevopsResourceAreas',
+        'New-AzDevopsCodeReviewerPolicy',
+        'New-AzDevopsCommentResolutionPolicy',
+        'New-AzDevopsLimitMergeTypePolicy',
+        'New-AzDevopsLinkedWorkItemPolicy',
+        'New-AzDevopsRepository',
+        'New-AzDevopsReviewerPolicy',
+        'Remove-AzDevopsPolicyConfiguration',
+        'Remove-AzDevopsRepository',
+        'Set-AzDevopsCodeReviewerPolicy',
+        'Set-AzDevopsCommentResolutionPolicy',
+        'Set-AzDevopsLimitMergeTypePolicy',
+        'Set-AzDevopsLinkedWorkItemPolicy',
+        'Set-AzDevopsReviewerPolicy'
+    )
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
     CmdletsToExport   = @()
