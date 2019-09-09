@@ -12,8 +12,8 @@ function Get-AzDevopsRelease {
         [Parameter(Mandatory = $true, HelpMessage = 'Name or ID of the project in Azure Devops.')]
         [string] $Project,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = 'ID of the build.')]
-        [int[]] $ReleaseId,
+        [Parameter(Mandatory = $false, ValueFromPipeline, ValueFromPipelineByPropertyName, HelpMessage = 'ID of the build.')]
+        [int[]] $Id,
 
         [Parameter(Mandatory = $false, HelpMessage = 'A filter which would allow fetching approval steps selectively based on whether it is automated, or manual. This would also decide whether we should fetch pre and post approval snapshots. Assumes All by default.')]
         [ValidateSet('all', 'approvalSnapshots', 'automatedApprovals', 'manualApprovals', 'none')]
@@ -111,7 +111,7 @@ function Get-AzDevopsRelease {
     }
 
     process {
-        $ReleaseId | ForEach-Object {
+        $Id | ForEach-Object {
             $idUrl = $queryUrl = $null
 
             if ($_) {

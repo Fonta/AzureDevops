@@ -9,8 +9,11 @@ function Get-AzDevopsProject {
         [Alias('OrgName')]
         [string] $OrganizationName,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = 'Name or ID of the project in Azure Devops.')]
+        [Parameter(Mandatory = $false, HelpMessage = 'Name or ID of the project in Azure Devops.')]
         [string[]] $Project,
+
+        [Parameter(Mandatory = $false, ValueFromPipeline, ValueFromPipelineByPropertyName, HelpMessage = 'Name or ID of the project in Azure Devops.')]
+        [string[]] $Id,
 
         [Parameter(Mandatory = $false, HelpMessage = 'Filter on team projects in a specific team project state (default: WellFormed).')]
         [ValidateSet('all', 'createPending', 'deleted', 'deleting', 'new', 'unchanged', 'wellFormed')]
@@ -52,7 +55,13 @@ function Get-AzDevopsProject {
     }
 
     process {
-        $Project | ForEach-Object {
+        # If there was no pipeline input, or Id wasn't used but we do have a value for project, we'll use that as our Id input
+        if (($PSBoundParameters.ContainsKey('Id')) -and (-not $PSBoundParameters.ContainsKey('Id')) -and (-not $_)) {
+        # if (($PSBoundParameters.ContainsKey('Project')) -and (-not $_) -and (-not $Id)) {
+            $Id = $Project
+        }
+
+        $Id | ForEach-Object {
             $idUrl = $queryUrl = $null
 
             if ($_) {
@@ -83,7 +92,7 @@ function Get-AzDevopsProject {
             }
 
             $url = [string]::Format('{0}_apis/projects/{1}?{2}api-version=5.1', $areaUrl, $idUrl, $queryUrl)
-            Write-Verbose "Contructed url $url"
+            Write-Verbose "$($MyInvocation.MyCommand): Contructed url $url"
 
             $WRParams = @{
                 Uri         = $url
@@ -99,8 +108,6 @@ function Get-AzDevopsProject {
     }
 
     end {
-        if ($results) {
-            return $results 
-        }
+        return $results 
     }
 }

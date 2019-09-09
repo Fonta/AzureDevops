@@ -44,19 +44,19 @@ function Remove-AzDevopsRepository {
 
     process {
         $Id | ForEach-Object {
-            $repo = $null
+            $RepoToDeleteInfo = $null
 
             # according to the docs, it should be possible to use the name of the repo in the url but somehow doesnt work
             # therefor we first get the information of the repo for its id
-            $repo = Get-AzDevopsRepository -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project -Id $_
+            $RepoToDeleteInfo = Get-AzDevopsRepository -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project -Id $_
 
-            if ($repo) {
-                if ($PSCmdlet.ShouldProcess($repo.name)) {
-                    Write-Verbose "Removing policies for $($repo.name)"
-                    $repo | Remove-AzDevopsPolicyConfiguration -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project
+            if ($RepoToDeleteInfo) {
+                if ($PSCmdlet.ShouldProcess($RepoToDeleteInfo.name)) {
+                    Write-Verbose "$($MyInvocation.MyCommand): Removing policies for $($RepoToDeleteInfo.name)"
+                    $RepoToDeleteInfo | Remove-AzDevopsPolicyConfiguration -PersonalAccessToken $PersonalAccessToken -OrganizationName $OrganizationName -Project $Project
 
-                    $url = [string]::Format('{0}{1}/_apis/git/repositories/{2}?api-version=5.1', $areaUrl, $Project, $repo.id)
-                    Write-Verbose "Contructed URL $url"
+                    $url = [string]::Format('{0}{1}/_apis/git/repositories/{2}?api-version=5.1', $areaUrl, $Project, $RepoToDeleteInfo.id)
+                    Write-Verbose "$($MyInvocation.MyCommand): Contructed URL $url"
                     
                     $WRParams = @{
                         Uri         = $url
@@ -65,7 +65,7 @@ function Remove-AzDevopsRepository {
                         ContentType = 'application/json'
                     }
 
-                    Write-Verbose "Removing repository $($repo.name)"
+                    Write-Verbose "$($MyInvocation.MyCommand): Removing repository $($RepoToDeleteInfo.name)"
                     Invoke-WebRequest @WRParams | Get-ResponseObject | ForEach-Object {
                         $results.Add($_) | Out-Null
                     }

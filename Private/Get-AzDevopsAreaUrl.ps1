@@ -20,7 +20,7 @@ function Get-AzDevopsAreaUrl {
     $orgUrl = Get-AzDevopsOrgUrl -OrganizationName $OrganizationName
 
     # Build the URL for calling the org-level Resource Areas REST API for the RM APIs
-    $resourceAreasApiUrl = [string]::Format("{0}/_apis/resourceAreas/{1}?api-preview=5.0-preview.1", $orgUrl, $AreaId)
+    $resourceAreasApiUrl = [string]::Format("{0}_apis/resourceAreas/{1}?api-preview=5.0-preview.1", $orgUrl, $AreaId)
 
     # Do a GET on this URL (this returns an object with a "locationUrl" field)
     $response = Invoke-WebRequest -Uri $resourceAreasApiUrl -Headers $header

@@ -12,8 +12,8 @@ function Get-AzDevopsBuild {
         [Parameter(Mandatory = $true, HelpMessage = 'Name or ID of the project in Azure Devops.')]
         [string] $Project,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = 'ID of the build.')]
-        [int[]] $BuildId,
+        [Parameter(Mandatory = $false, ValueFromPipeline, ValueFromPipelineByPropertyName, HelpMessage = 'ID of the build.')]
+        [int[]] $Id,
 
         [Parameter(Mandatory = $false, HelpMessage = 'Property Filters.')]
         [string] $PropertyFilters,
@@ -101,7 +101,7 @@ function Get-AzDevopsBuild {
     }
 
     process {
-        $BuildId | ForEach-Object {
+        $Id | ForEach-Object {
             $idUrl = $queryUrl = $null
 
             if ($_) { 

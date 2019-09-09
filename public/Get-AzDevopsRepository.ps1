@@ -11,7 +11,7 @@ function Get-AzDevopsRepository {
         [Parameter(Mandatory = $false, HelpMessage = 'Name or ID of the project in Azure Devops.')]
         [string] $Project,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = 'Name or ID of the repository.')]
+        [Parameter(Mandatory = $false, ValueFromPipeline, ValueFromPipelineByPropertyName, HelpMessage = 'Name or ID of the repository.')]
         [string[]] $Id,
 
         [Parameter(Mandatory = $false, HelpMessage = 'Name or ID of the repository.')]
