@@ -1,0 +1,26 @@
+{
+    "isEnabled": "$Enabled",
+    "isBlocking": "$Blocking",
+    "type": {
+        "id": "fd2167ab-b0be-447a-8ec8-39368250530e"
+    },
+    "settings": {
+        "requiredReviewerIds": [
+            $ReviewerIds
+        ],
+        "filenamePatterns": [
+            $FilenamePatterns
+        ],
+        "addedFilesOnly": "$AddedFilesOnly",
+        "minimumApproverCount": $MinimumApproverCount,
+        "creatorVoteCounts": "$CreatorVoteCounts",
+        "message": "$ActivityFeedMessage",
+        "scope": [
+            {
+                "repositoryId": "$_",
+                "matchKind": "$matchKind",
+                "refName": "$Branch"
+            }
+        ]
+    }
+}

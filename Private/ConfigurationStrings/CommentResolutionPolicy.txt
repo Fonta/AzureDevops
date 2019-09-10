@@ -1,0 +1,16 @@
+{
+    "isEnabled": "$Enabled",
+    "isBlocking": "$Blocking",
+    "type": {
+        "id": "c6a1889d-b943-4856-b76f-9e46bb6b0df2"
+    },
+    "settings": {
+        "scope": [
+            {
+                "repositoryId": "$_",
+                "matchKind": "$matchKind",
+                "refName": "$Branch"
+            }
+        ]
+    }
+}

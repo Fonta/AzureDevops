@@ -1,0 +1,20 @@
+{
+    "isEnabled": "$Enabled",
+    "isBlocking": "$Blocking",
+    "type": {
+        "id": "fa4e907d-c16b-4a4c-9dfa-4916e5d171ab"
+    },
+    "settings": {
+        "allowNoFastForward": "$AllowBasicMerge",
+        "allowSquash": "$AllowSquashMerge",
+        "allowRebase": "$AllowRebaseAndFastForward",
+        "allowRebaseMerge": "$AllowRebaseWithMergeCommit",
+        "scope": [
+            {
+                "repositoryId": "$_",
+                "matchKind": "$matchKind",
+                "refName": "$Branch"
+            }
+        ]
+    }
+}
