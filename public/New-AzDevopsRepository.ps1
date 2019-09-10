@@ -71,7 +71,7 @@ function New-AzDevopsRepository {
                 }
             }
             
-            if ($PSCmdlet.ShouldProcess($newRepoArgs.name)) {
+            if ($PSCmdlet.ShouldProcess($Name)) {
                 $body = ($newRepoArgs | ConvertTo-Json)
     
                 $WRParams = @{

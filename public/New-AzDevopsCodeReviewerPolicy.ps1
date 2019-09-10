@@ -85,7 +85,7 @@ function New-AzDevopsCodeReviewerPolicy {
     
     process {
         $Id | ForEach-Object {
-            if ($PSCmdlet.ShouldProcess($RepositoryId)) {
+            if ($PSCmdlet.ShouldProcess($_)) {
                 $policyString = $script:ConfigurationStrings.CodeReviewerPolicy
                 $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
 

@@ -75,7 +75,7 @@ function New-AzDevopsReviewerPolicy {
             $policyString = $script:ConfigurationStrings.ReviewerPolicy
             $policy = $ExecutionContext.InvokeCommand.ExpandString($policyString)
 
-            if ($PSCmdlet.ShouldProcess($RepositoryId)) {
+            if ($PSCmdlet.ShouldProcess($_)) {
                 $WRParams = @{
                     Uri         = $url
                     Method      = 'Post'
